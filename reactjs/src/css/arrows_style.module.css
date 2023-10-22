@@ -1,0 +1,45 @@
+.arrow{
+    border: solid black;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+}
+  
+.right {
+transform: rotate(-45deg);
+-webkit-transform: rotate(-45deg);
+}
+
+.left {
+transform: rotate(135deg);
+-webkit-transform: rotate(135deg);
+}
+
+.arr-w{
+border-color:white;
+}
+
+.arr-no-hover:hover{
+background-color:transparent !important;
+}
+.arr-no-focus:focus{
+outline:transparent !important;
+}
+
+
+.arrowbtn{
+background-color:transparent;
+border: none;
+width:40px;
+height:40px;
+border-radius:4px;
+margin-top: 10px;
+}
+
+.arrowbtnright:hover{
+background-color:#CAF2FC;
+}
+
+.arrowbtnleft:hover{
+background-color:#CAF2FC;
+}

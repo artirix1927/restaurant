@@ -1,0 +1,22 @@
+.boooking-list{ 
+   
+    margin:200px auto;
+    min-width: 400px;
+    width: 400px;
+    border: 8px double #a1a18d;
+    padding: 20px 40px 20px 40px;
+    min-height: 580px;
+    height: 580px;
+    overflow-y:scroll;
+    overflow-x:hidden;
+   
+}
+
+
+.booking-info-card{
+height: 100px;
+padding: 10px 20px 10px 20px;
+width: 100%;
+
+
+}

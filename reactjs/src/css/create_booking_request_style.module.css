@@ -1,0 +1,54 @@
+.form-control{
+border: 1px solid grey;
+background-color: white;
+height: 34px ;
+margin-bottom: 12px;
+text-align: start;
+font-size:16px;
+color:black;
+font-weight: normal;
+}
+
+.form-control[readonly]{
+    border: 1px solid grey;
+    background-color: white;
+}
+
+
+.form-wrapper{
+background-color:#C0C0C0;
+border: 1px solid rgb(43, 43, 43);
+border-radius: 8px;
+padding: 20px 50px;
+float: left;
+margin: 10px 60px;
+width:40%;
+min-width: 400px;
+max-width: 400px;
+position: relative;
+}
+
+.create-booking-content{
+margin:100px;
+
+}
+
+.choose-table-modal{
+width:50%;
+z-index:1000;
+background-color:#C0C0C0;
+position: fixed;
+height: 50%;
+right: 0;
+float:right;
+margin: 0px auto;
+display:block;
+left: 45%; 
+}
+
+
+
+.table-element-active{
+outline:2px solid #390003;
+}
+
