@@ -3,35 +3,96 @@ import sArrows from '../css/arrows_style.module.css'
 
 import { handleArrowClick } from './arrowsHanlders';
 
-import { useRef, useState } from 'react';
+import { useRef, useContext, forwardRef} from 'react';
 
-import { handleFindBtnClick } from './handlers';
+import { ChooseTableModal, TableElement} from './chooseTable';
 
-import { ChooseTableModal } from './chooseTable';
+import {MainPageContext} from './context';
 
-import Flatpickr from "react-flatpickr";
+import Flatpickr from "react-flatpickr"; 
+
+import axios from 'axios';
+
+import { format } from 'date-fns';
+
+import { useNavigate } from 'react-router-dom';
+import { createRoot } from 'react-dom/client';
+
+const dateFormat = "E, d LLL"
+
+export const BookingModal = () => {
+    return <div id="booking" className={s.booking}>
+            <div id="booking-content" className={s['booking-content']}>
+                <div>
+                    <ChooseTableModal context={MainPageContext}/>
+                </div>
+                
+                <form>
+                    <ul >
+                        <FormFields/>
+                    </ul>
+                </form>
+            </div>
+        </div> 
+}
 
 
-export const BookingModal = () => {return <div id="booking" className={s.booking}>
-    <div id="booking-content" className={s['booking-content']}>
-        <div>
-            <ChooseTableModal/>
-        </div>
-        
-        <form>
-            <ul >
-                <FormFields/>
-            </ul>
-        </form>
-    </div>
-</div>}
-
-
-const FormFields = () => {
+const FormFields = (props) => {
     const fpTime = useRef();
     const fpDate = useRef();
     const guestsField = useRef();
+    
+    const {setDataForShortInfo} = useContext(MainPageContext)
 
+    const navigate = useNavigate();
+
+    function handleFindBtnClick(){
+        
+        openTableChoosingWindow();
+        let timeFieldValue = fpTime.current.flatpickr.input.value; //get str from main input field
+        let dateFieldValue = fpDate.current.flatpickr.input.value; //get str from main input field
+        let guestsFieldValue = guestsField.current.value;
+
+        setDataForShortInfo(format(fpDate.current.flatpickr.latestSelectedDateObj, dateFormat),timeFieldValue,guestsFieldValue)
+
+        axios.post("http://127.0.0.1:8000/api/get-tables", {
+
+                time: timeFieldValue,
+                date: dateFieldValue,
+                guests: guestsFieldValue,
+
+        }).then((res) => {
+            console.log(timeFieldValue)
+            let free_tables = res.data.free_tables;
+            let booking_frame = res.data.booking_frame;
+            let root = createRoot(document.getElementById('list-of-tables'))
+    
+            root.unmount();
+            root = createRoot(document.getElementById('list-of-tables'));
+
+            let tables = [];
+
+            free_tables.forEach((table) => {
+                let dataForHandleBtn = {table:table,bookingStart: booking_frame[0],
+                    bookingEnd: booking_frame[1], guests: guestsFieldValue,nav: navigate}
+    
+                let dataForTableElement ={time:timeFieldValue, table: table}
+                const tableElement = <TableElement data={dataForTableElement} 
+                                                   tableElementHandler = {handleTableElementClick}
+                                                   dataForTableElementHandler={dataForHandleBtn}
+                                                   key={table.id}
+                                                   />;
+                tables.push(tableElement)
+            })
+            root.render(tables)
+           
+        
+        });
+    
+    }
+    
+    
+    
     return <div><li>
     <div id="booking-date" className={s["booking-field"]}>
         <button type="button" className={`${sArrows.arrowbtn} ${sArrows.arrowbtnleft} ${sArrows['changing-arrow']} date`} onClick={(e) => {handleArrowClick(e ,fpDate, fpTime)}}><i className={`${sArrows.arrow} ${sArrows.left}`}></i></button>
@@ -44,7 +105,6 @@ const FormFields = () => {
                             altFormat: "D,d M",
                             deafultDate: new Date(),
                             disableMobile: "true",
-                            minDate: new Date(),
                             }} ref={fpDate}/></span>                
 
 
@@ -76,6 +136,7 @@ const FormFields = () => {
             altFormat: "H:i",
             time_24hr: true,
             disableMobile: "true",
+            deafultDate: new Date(),
             }} ref={fpTime}/></span>
         <button type="button" className={`${sArrows.arrowbtn} ${sArrows.arrowbtnright} ${sArrows['changing-arrow']} time`} onClick={(e) => {handleArrowClick(e ,fpDate, fpTime)}}><i className={`${sArrows.arrow} ${sArrows.right}`}></i></button>
     </div>
@@ -84,10 +145,39 @@ const FormFields = () => {
 
     </li>                      
 
-    <button id="booking-findbtn" className={s['booking-findbtn']} type="button" onClick={(e) => {handleFindBtnClick(e,fpDate,fpTime,guestsField)}}>FIND A TABLE</button>
+    <button id="booking-findbtn" className={s['booking-findbtn']} type="button" onClick={(e) => {handleFindBtnClick()}}>FIND A TABLE</button>
     
     </div>}
 
+const handleTableElementClick = (e, data, ...others) => {
+
+    let bookingRequestData =  {
+        bookingStart: data.bookingStart,
+        bookingEnd: data.bookingEnd,
+        guests: data.guests,
+        tableChosen: data.table.id,
+        tableTags: data.table.tags,
+    }
+    localStorage.setItem("userBookingRequirementsData", JSON.stringify(bookingRequestData));
+   
+    const navigate = others[0];
+    navigate('/create-booking-request')
+}
 
 
 
+
+
+function openTableChoosingWindow(){
+    document.getElementById('choose-table-modal').style.display = 'block';
+}
+
+export function closeTableChoosingWindow(){
+document.getElementById('choose-table-modal').style.display = 'none';
+}
+
+
+// const Arrow = forwardRef((props, ref) => {return <button type="button" 
+// className={`${sArrows.arrowbtn} ${sArrows.arrowbtnleft} ${sArrows['changing-arrow']} ${props.type}`} 
+// onClick={(e) => {handleArrowClick(e ,fpDate, fpTime)}}>
+// <i className={`${sArrows.arrow} ${sArrows.left}`}></i></button>})

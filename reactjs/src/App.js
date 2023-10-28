@@ -7,37 +7,42 @@ import {HeaderNavbar, ImageSection, ReserveByPhone, OpeningHours} from "./main/m
 
 import { CreateBookingRequestContent } from './booking/createBookingRequest';
 
-import {BookingInfoList} from './booking/bookingInfo'
+import {BookingInfoList} from './booking/bookingList'
 
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import { ContextWrapper } from './booking/context';
+
 function App() {
 
   const MainPage = () => {
-    return <div id='main-page-wrapper'>
-    <HeaderNavbar/>
-    <ImageSection/>
-    <BookingModal/>
-    <ReserveByPhone/>
-    <OpeningHours/>
-    
-  </div>}
+    return <ContextWrapper>
+      <div id='main-page-wrapper'>
+        <HeaderNavbar/>
+        <ImageSection/>
+        <BookingModal/>
+        <ReserveByPhone/>
+        <OpeningHours/>
+      </div>
+    </ContextWrapper>}
 
   const CreateBookingRequest = () => {
     document.body.style.overflow = 'hidden';
     
-    return <div id='create-booking-request-wrapper'>
-    <HeaderNavbar/>
-    <CreateBookingRequestContent/>
-    </div>
+    return <ContextWrapper>
+      <div id='create-booking-request-wrapper'>
+        <HeaderNavbar/>
+        <CreateBookingRequestContent/>
+      </div>
+    </ContextWrapper>
   } 
   
   const CreatedBookingInfo = () => {
     document.body.style.overflow = 'hidden';
     return <div id='create-booking-info-wrapper'>
-    <HeaderNavbar/>
-    <BookingInfoList/>
+      <HeaderNavbar/>
+      <BookingInfoList/>
     </div>
   }
 

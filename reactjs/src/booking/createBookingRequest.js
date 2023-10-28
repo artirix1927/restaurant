@@ -1,21 +1,26 @@
-import { Formik, Field, Form, FastField } from "formik";
+import { Formik, Form, FastField, isInteger } from "formik";
 import Flatpickr from "react-flatpickr";
 
 
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useContext, useEffect, useRef, useState } from "react";
 
-import ReactDOM from 'react-dom';
+import { createRoot } from "react-dom/client";
 
 import s from '../css/create_booking_request_style.module.css' 
 
 import sC from '../css/choose_table_style.module.css'
 
-import {format} from 'date-fns'
+import {format, parseJSON} from 'date-fns'
 
+import { TableElement } from "./chooseTable";
 
 import {ChooseTableModal } from "./chooseTable";
 
+import { MainPageContext } from "./context";
+
 import axios from "axios";
+
+import {useNavigate} from "react-router-dom";
 
 //flatpickr cfg 
 const optinosForFlatpickr = {
@@ -29,24 +34,34 @@ const optinosForFlatpickr = {
 
 
 export const CreateBookingRequestContent = () => {
-    // date, time, guests, table data from main page 
-    const userRequirementsData = JSON.parse(localStorage.getItem("userBookingRequirementsData")); 
 
-    const startTimeFp = useRef();
+    // all data for booking from main page form  
+    const userRequirementsData = JSON.parse(localStorage.getItem('userBookingRequirementsData')); 
 
+    //putting it in constants because I use it in two of the useEffects
+    const parsedBookingStartDateTime = parseJSON(userRequirementsData.bookingStart)//parse json is date-fns function
+
+    const time = format(parsedBookingStartDateTime, "H:mm");
+
+    const guests = userRequirementsData.guests;
+
+
+    //refs
     const tableChosen = useRef(userRequirementsData.tableChosen);
 
     const formikRef = useRef();
 
+    // context func to set short info in choose table window at the top
+    const {setDataForShortInfo} = useContext(MainPageContext)
+
+    useEffect(()=>{
+        let date = format(parsedBookingStartDateTime, "E, d LLL");
+        setDataForShortInfo(date, time, guests)
+    },[])
+
+
     useEffect(() => {
-        const fpInstance = startTimeFp.current.flatpickr;
-        const parsedDateTime = fpInstance.parseDate(userRequirementsData.bookingStart)
-
-        let date = format(parsedDateTime, "yyyy-MM-dd");
-        
-        let time = format(parsedDateTime, "H:mm");
-
-        let guests = userRequirementsData.guests;
+        let date = format(parsedBookingStartDateTime, "yyyy-MM-dd");
         
         axios.post("http://127.0.0.1:8000/api/get-tables", {
         
@@ -57,130 +72,168 @@ export const CreateBookingRequestContent = () => {
 
         }).then((res) => {
             let free_tables = res.data.free_tables;
-            let listOfTablesElement = document.getElementById('list-of-tables');
+            let root = createRoot(document.getElementById('list-of-tables'))
 
-            ReactDOM.unmountComponentAtNode(listOfTablesElement);
-            
             let tables = [];
             
             free_tables.forEach((table) => {
                 let dataForTableElement ={ time:time, table: table}
-                let dataForHandleBtn = {tableChosen:tableChosen, formikInstance:formikRef}
+                let dataForHandleBtn = {tableChosen:tableChosen, formikInstance:formikRef, nav:null}
+                const tableElement = <TableElement data={dataForTableElement} 
+                                                   tableElementHandler = {handleTableElementClick}
+                                                   dataForTableElementHandler={dataForHandleBtn} key={table.id} 
+                                                   active={(table.id == tableChosen.current)}/>;
 
-                const tableElement = <TableElement data={dataForTableElement} dataForHandleBtn={dataForHandleBtn}></TableElement>;
-                
                 tables.push(tableElement)
             })
-            ReactDOM.render(tables, listOfTablesElement)
+            root.render(tables)
+
+           
         })
-        let formatedDate= format(parsedDateTime,"E, d LLL");
-
-        document.getElementById("short-info-date").innerText = formatedDate
-        document.getElementById("short-info-time").innerText = time;
-        document.getElementById("short-info-guests").innerText = guests;
-      }, [userRequirementsData]);  
+      },[]);  
     
-    const getTableFieldInitialValue = () => {return `${userRequirementsData.tableTags} : Table ${tableChosen.current}`}
-
-
 
     return <div id="create-booking-content" className={s['create-booking-content']}>
-    <div id="form-wrapper" className={s['form-wrapper']}>
-        <Formik innerRef={formikRef} enableReinitialize={true} initialValues={
-            {table: getTableFieldInitialValue(), 
-            guests: userRequirementsData.guests,bookingStart: userRequirementsData.bookingStart, 
-            bookingEnd:userRequirementsData.bookingEnd}
+        <div id="form-wrapper" className={s['form-wrapper']}>
+            <FormikInit ref={{formik:formikRef, tableChosen: tableChosen}} userRequirementsData={userRequirementsData} >
+                <Form>
+                    <TableInfoFields/>
+
+                    <BookingFrameInfoFields bookingStart={userRequirementsData.bookingStart} 
+                    bookingEnd={userRequirementsData.bookingEnd}/> 
+
+                    <ClientPersonalInfoFields/>
+
+                    <button className="btn btn-success" type="submit">Submit</button>
+                </Form>
+            </FormikInit>
+        </div>
+
+        <div>
+            <ChooseTableModal className={s['choose-table-modal']}/>
+
+        </div>
+
+
+
+    </div>
+}
+
+const FormikInit = forwardRef((props, refs)=>{
+    const userRequirementsData = props.userRequirementsData;
+
+    const navigate = useNavigate();
+
+    return <Formik innerRef={refs.formik} enableReinitialize={true} 
+            
+        initialValues={
+            {table: `${userRequirementsData.tableTags} : Table ${refs.tableChosen.current}`, 
+            guests: userRequirementsData.guests, bookingStart: userRequirementsData.bookingStart, 
+            bookingEnd:userRequirementsData.bookingEnd,clientName:'', clientEmail: '', clientTel:''
+            }
         }
 
         onSubmit={(values) => {
                 let dataForApi = Object.assign({}, values)
-                dataForApi.table = tableChosen.current;
-
-                axios.post('http://127.0.0.1:8000/api/create-booking-request', {bookingRequestData: dataForApi}).then((res) => {
+                dataForApi.table = refs.tableChosen.current;
+                console.log(dataForApi)
+                axios.post('http://127.0.0.1:8000/api/create-booking-request', 
+                {bookingRequestData: dataForApi}).then((res) => {
 
                     const userBookingData = {phoneNumber: values.clientTel, email: values.clientEmail}
-
+                    console.log(dataForApi)
                     localStorage.setItem('isBookingCreated', true);
 
-                    localStorage.setItem('userBookingData',  JSON.stringify(userBookingData));
+                    localStorage.setItem('userBoookingData', JSON.stringify(userBookingData))
 
-                    window.location.href = '/created-booking-list'
+                    navigate('/created-booking-list')
                 })
         }}
         
         >
-            
-        <Form>
-                <label htmlFor="table">Table:</label>
-                <Field type="text" className={`${s['form-control']} form-control`} name="table" 
-                disabled={true} 
-                />
+        <div>
+            {props.children}
+        </div>
 
-                <label htmlFor="guests">Guests:</label>
-                <FastField type="number" className={`${s['form-control']} form-control`} name="guests" //innerRef={guestsRef} 
-                />
-
-                <label htmlFor="bookingStart">Booking Start:</label>
-                <Flatpickr className={`${s['form-control']} ${s['create-booking-field']} form-control`} 
-                options={optinosForFlatpickr} name="bookingStart" defaultValue={userRequirementsData.bookingStart} 
-                ref={startTimeFp} disabled={true}
-                />
-                
-                <label htmlFor="bookingEnd">Booking End:</label>
-                <Flatpickr className={`${s['form-control']} ${s['create-booking-field']} form-control`} disabled={true} 
-                options={optinosForFlatpickr} name="bookingEnd" defaultValue={userRequirementsData.bookingEnd}/>
-
-                <label htmlFor="client-name">Name:</label>
-                <FastField type="text" className={`${s['form-control']} ${s['create-booking-field']} form-control`} 
-                name="clientName" 
-                />
-
-                <label htmlFor="client-tel">Phone Number:</label>
-                <FastField type="tel" className={`${s['form-control']} ${s['create-booking-field']} form-control`} 
-                name="clientTel" 
-                />
-
-                <label htmlFor="client-email">Email:</label>
-                <FastField type="email" className={`${s['form-control']} ${s['create-booking-field']} form-control`} 
-                name="clientEmail"
-                />
-
-                <button className="btn btn-success" type="submit">Submit</button>
-
-            </Form>
-            
-            
-        </Formik>
-    </div>
-
-    <div>
-        <ChooseTableModal className={s['choose-table-modal']} />
-
-    </div>
-
-
-</div>
+    </Formik>
 }
+)
 
 
 
-const TableElement = (props) => { 
-    const handleTableElementClick = (e, data) => {
-        document.getElementById(data.tableChosen.current).classList.remove(sC['table-element-active']);
-        e.currentTarget.classList.add(sC['table-element-active']);
-    
-        data.tableChosen.current = e.currentTarget.id;
-        
-        var textForField = e.currentTarget.childNodes[1].textContent + ': ' + e.currentTarget.childNodes[2].textContent 
-        
-        data.formikInstance.current.setFieldValue('table', textForField);
-    
-    }
+const GroupFieldTitle = (props) => {return <h4 style={{textAlign:"center"}}>{props.children}</h4>}
 
+const TableInfoFields = () => {return <div>
+    <GroupFieldTitle>Table Info</GroupFieldTitle>
 
-    return <div className={sC['table-element']} id={props.data.table.id} max_guests={props.data.table.max_guests} 
-    key={props.data.table.id} onClick={(e) => {handleTableElementClick(e, props.dataForHandleBtn);}} >
-    {props.data.time}  
-    <p className={sC['tags-for-table']}>{props.data.table.tags.toString()} ({props.data.table.max_guests})</p>
-    <p className={`${sC['tags-for-table']} ${sC['table-num']}`}> Table {props.data.table.id}</p>
+    <label htmlFor="table">Table:</label>
+    <FastField type="text" className={`${s['form-control']} form-control`} name="table" 
+    disabled={true} 
+    />
+
+    <label htmlFor="guests">Guests:</label>
+    <FastField type="number" className={`${s['form-control']} form-control`} name="guests"
+    disabled={true}
+    />
+
 </div>}
+
+
+const BookingFrameInfoFields = forwardRef((props)=>{return <div>
+    <GroupFieldTitle>Booking Time</GroupFieldTitle>
+
+    <label htmlFor="bookingStart">Booking Start:</label>
+    <Flatpickr className={`${s['form-control']} ${s['create-booking-field']} form-control`} 
+    options={optinosForFlatpickr} name="bookingStart" defaultValue={props.bookingStart} 
+    disabled={true}
+    />
+                    
+    <label htmlFor="bookingEnd">Booking End:</label>
+    <Flatpickr className={`${s['form-control']} ${s['create-booking-field']} form-control`} 
+    disabled={true} options={optinosForFlatpickr} name="bookingEnd" defaultValue={props.bookingEnd}/>
+
+</div>})
+
+
+const ClientPersonalInfoFields = () =>{return <div>
+    <GroupFieldTitle>Personal Info</GroupFieldTitle>
+
+    <label htmlFor="clientName">Name:</label>
+    <FastField type="text" className={`${s['form-control']} ${s['create-booking-field']} form-control`} 
+    name="clientName" 
+    />
+
+    <label htmlFor="clientTel">Phone Number:</label>
+    <FastField type="tel" className={`${s['form-control']} ${s['create-booking-field']} form-control`} 
+    name="clientTel" 
+    />
+
+    <label htmlFor="clientEmail">Email:</label>
+    <FastField type="email" className={`${s['form-control']} ${s['create-booking-field']} form-control`} 
+    name="clientEmail"
+    />
+</div>}
+
+
+
+
+
+
+
+
+
+const handleTableElementClick = (e, data, ...others) => {
+    const currentTableElement = document.getElementById(data.tableChosen.current)
+
+    if (currentTableElement)
+        currentTableElement.classList.remove(sC['table-element-active']);
+
+    e.currentTarget.classList.add(sC['table-element-active']);
+
+    data.tableChosen.current = e.currentTarget.id;
+    
+    var textForTableField = e.currentTarget.childNodes[1].textContent + ': ' + e.currentTarget.childNodes[2].textContent 
+    
+    data.formikInstance.current.setFieldValue('table', textForTableField);
+
+}

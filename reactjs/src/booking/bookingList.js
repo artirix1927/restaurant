@@ -1,7 +1,5 @@
 import { useEffect, useState} from "react"
 
-import Flatpickr from "react-flatpickr";
-
 import s from '../css/booking_info.module.css'
 import axios from "axios";
 
@@ -12,19 +10,16 @@ const dateFormat = "E, d LLL H:mm"
 export const BookingInfoList = () => {
     const [userBookings, setUserBookings] = useState({});
 
-    
-
 
     useEffect(() =>{
-        let userBookingData = JSON.parse(localStorage.getItem('userBookingData'))
-
+        let userBookingData = JSON.parse(localStorage.getItem('userBoookingData'));
 
         if (userBookingData){
         axios.post('http://127.0.0.1:8000/api/get-user-bookings', {phoneNumber: userBookingData.phoneNumber, email:userBookingData.email}).then(res => {console.log(res.data.userBookings) 
         setUserBookings(res.data.userBookings)})
 
         const interval = setInterval(() => {axios.post('http://127.0.0.1:8000/api/get-user-bookings', {phoneNumber: userBookingData.phoneNumber, email:userBookingData.email}).then(res => {console.log(res.data.userBookings) 
-        setUserBookings(res.data.userBookings)})}, 30000);
+        setUserBookings(res.data.userBookings)})}, 60000);
         return () => {
             clearInterval(interval);
         };
@@ -32,19 +27,13 @@ export const BookingInfoList = () => {
         
 
     }, [])
-    let objects = []
-    
-    for(let i=0; i<userBookings.length; i++) {
-        console.log(userBookings[i])
-        objects.push(<BookingInfoCard key={i} data={userBookings[i]}/>)
-
-        } 
 
     return <div className={s['boooking-list']}>
         <ul>
-        {
-         objects
-        }
+        {userBookings.map((booking)=>(
+        <BookingInfoCard data={booking}/>
+        
+        ))}
         </ul>
     </div>
 
@@ -59,7 +48,7 @@ const BookingInfoCard = (props) => {
         //use date-fns since i dont use here flatpickr instance \
         changeBookingStartFormatted(format(new Date(props.data.booking_start), dateFormat))
         changeBookingEndFormatted(format(new Date(props.data.booking_end), dateFormat))
-    }, [])
+    }, [props.data.booking_start, props.data.booking_end])
     
     
     return <li className={s['booking-info-card']}>
@@ -68,7 +57,5 @@ const BookingInfoCard = (props) => {
             <br/>Guests: {props.data.guests} Booking Id: {props.data.id}</p>
         </div>
     </li>
-
-
 }
 

@@ -6,7 +6,7 @@ import sectionImage from '../static/restsection.jpg'
 import s from '../css/main_style.module.css'
 import { useEffect, useRef, useState } from 'react'
 
-       
+import { Link } from 'react-router-dom'
 
 const navbarBackGroundHandler = () =>{
     if (window.scrollY == 0){
@@ -35,8 +35,8 @@ const HeaderNavbar = () => {
     return <header id="navbar" className={s.navbar} ref={navbarRef}>
 
     <div className={s['header-content']}>
-        <a><button id="bookatablenavbar" type="button" className={`${s['book-a-table-navbar']} btn btn-outline-secondary `}>BOOK A TABLE</button></a>
-        <a href='/created-booking-list' className={s['link']}><button type="button" className={` btn btn-outline-secondary ${s['my-bookings-btn']} ${s[showBtn]}`}>MY BOOKINGS</button></a>
+        <Link><button id="bookatablenavbar" type="button" className={`${s['book-a-table-navbar']} btn btn-outline-secondary `}>BOOK A TABLE</button></Link>
+        <Link to='/created-booking-list' className={s['link']}><button type="button" className={` btn btn-outline-secondary ${s['my-bookings-btn']} ${s[showBtn]}`}>MY BOOKINGS</button></Link>
         <a className={`btn ${s.seeourmenu}`} id="seeourmenu">SEE OUR MENU</a>
 
         <LogoLink/>

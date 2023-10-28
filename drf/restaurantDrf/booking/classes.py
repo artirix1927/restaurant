@@ -41,6 +41,7 @@ class FreeTablesFinder:
 
     @staticmethod
     def __get_intersected_booking_requests(request_start, request_end) -> [QuerySet, BookingRequest]:
+
         reqs = BookingRequest.objects.values('id', 'tables').annotate(passing=
                                                                       Q(booking_start__lt=request_start) & Q(
                                                                           booking_end__gt=request_start) |
@@ -57,12 +58,16 @@ class FreeTablesFinder:
                                                                       (Q(booking_start=request_start) & Q(
                                                                           booking_end=request_end))
                                                                       ).filter(passing=True)
+        
         return reqs
 
     def __get_busy_tables(self) -> [list, Table]:
         booking_start, booking_end = self.get_booking_frame()
 
         requests = self.__get_intersected_booking_requests(booking_start, booking_end)
+
+        for table in requests.values('tables'):
+            print(table, requests)
 
         busy_tables_list = [Table.objects.get(pk=table['tables']) for table in
                             requests.values('tables')]  # get table objects of all busy tables
@@ -86,5 +91,4 @@ class FreeTablesFinder:
         return TableSerializer(sorted_tables, many=True).data
     
     def get_rendered_tables(self):
-        print(self.get_serialized_tables())
         return JSONRenderer.render(self.get_serialized_tables())
