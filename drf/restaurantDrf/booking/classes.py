@@ -61,7 +61,7 @@ class FreeTablesFinder:
         
         return reqs
 
-    def __get_busy_tables(self) -> [list, Table]:
+    def get_busy_tables(self) -> [list, Table]:
         booking_start, booking_end = self.get_booking_frame()
 
         requests = self.__get_intersected_booking_requests(booking_start, booking_end)
@@ -78,7 +78,7 @@ class FreeTablesFinder:
         # filtering tables by max guests quantity so people only get tables that all guests can fit in
         tables_fit_by_guests = Table.objects.filter(max_guests__gte=self.__booking_guests)
 
-        return set(tables_fit_by_guests) - set(self.__get_busy_tables())
+        return set(tables_fit_by_guests) - set(self.get_busy_tables())
 
     # Making dicts on my own because django serializers doesn't include taggit tags for tables
     def get_sorted_tables(self) -> [list, dict]:

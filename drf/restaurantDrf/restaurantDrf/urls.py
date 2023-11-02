@@ -22,5 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/get-tables', GetTables.as_view()),
     path('api/create-booking-request', CreateBookingRequest.as_view()),
-    path('api/get-user-bookings', GetBookingsRequestsForUser.as_view())
+    path('api/get-user-bookings', GetBookingsRequestsForUser.as_view()),
+    path('api/get-booking-by-id/<int:id>', GetBookingRequestById.as_view()),
+    path('api/delete-booking-by-id/<int:id>', DeleteBookingRequestById.as_view()),
 ]

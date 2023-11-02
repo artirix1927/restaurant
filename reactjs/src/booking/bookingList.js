@@ -5,35 +5,40 @@ import axios from "axios";
 
 import { format } from 'date-fns';
 
+import { Link } from "react-router-dom";
+
 const dateFormat = "E, d LLL H:mm"
 
-export const BookingInfoList = () => {
-    const [userBookings, setUserBookings] = useState({});
+export const CreatedBookingList = () => {
+    const [userBookings, setUserBookings] = useState([]);
 
 
     useEffect(() =>{
         let userBookingData = JSON.parse(localStorage.getItem('userBoookingData'));
 
-        if (userBookingData){
-        axios.post('http://127.0.0.1:8000/api/get-user-bookings', {phoneNumber: userBookingData.phoneNumber, email:userBookingData.email}).then(res => {console.log(res.data.userBookings) 
-        setUserBookings(res.data.userBookings)})
+        const doAxios = () => {axios.post('http://127.0.0.1:8000/api/get-user-bookings', 
+        {phoneNumber: userBookingData.phoneNumber, email:userBookingData.email}).then(
 
-        const interval = setInterval(() => {axios.post('http://127.0.0.1:8000/api/get-user-bookings', {phoneNumber: userBookingData.phoneNumber, email:userBookingData.email}).then(res => {console.log(res.data.userBookings) 
-        setUserBookings(res.data.userBookings)})}, 60000);
+            res => {console.log(res.data.userBookings) 
+            setUserBookings(res.data.userBookings)
+
+        })}
+
+        doAxios()
+
+        const interval = setInterval(() => {doAxios()}, 60000);
         return () => {
             clearInterval(interval);
         };
-    }
         
-
     }, [])
 
     return <div className={s['boooking-list']}>
         <ul>
-        {userBookings.map((booking)=>(
-        <BookingInfoCard data={booking}/>
+        {userBookings.map((booking)=>{
+        return <BookingInfoCard data={booking} key={booking.id}/>
         
-        ))}
+        })}
         </ul>
     </div>
 
@@ -52,10 +57,12 @@ const BookingInfoCard = (props) => {
     
     
     return <li className={s['booking-info-card']}>
-        <div>
-            <p>From: {bookingStartFormatted} <br/> To: {bookingEndFormatted}  
-            <br/>Guests: {props.data.guests} Booking Id: {props.data.id}</p>
-        </div>
+        <Link to={`/created-booking-detail/${props.data.id}`} style={{textDecoration:'none'}}>
+            <div style={{color:"black"}}>
+                <p>From: {bookingStartFormatted} <br/> To: {bookingEndFormatted}  
+                <br/>Guests: {props.data.guests} Booking Id: {props.data.id}</p>
+            </div>
+        </Link>
     </li>
 }
 

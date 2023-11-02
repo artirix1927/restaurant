@@ -22,11 +22,12 @@ const HeaderNavbar = () => {
     const [showBtn, changeShowBtn] = useState('dont-show');
 
     useEffect(() => {
-    window.addEventListener('scroll', navbarBackGroundHandler);
     if (localStorage.getItem('isBookingCreated')){
         changeShowBtn('show');
     }
 
+    window.addEventListener('scroll', navbarBackGroundHandler);
+    
     return () => {
         window.removeEventListener('scroll', navbarBackGroundHandler);
     };

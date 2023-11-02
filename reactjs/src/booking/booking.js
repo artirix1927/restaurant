@@ -65,10 +65,11 @@ const FormFields = (props) => {
             console.log(timeFieldValue)
             let free_tables = res.data.free_tables;
             let booking_frame = res.data.booking_frame;
-            let root = createRoot(document.getElementById('list-of-tables'))
+            const listOfTables = document.getElementById('list-of-tables')
+            let root = createRoot(listOfTables)
     
             root.unmount();
-            root = createRoot(document.getElementById('list-of-tables'));
+            root = createRoot(listOfTables);
 
             let tables = [];
 

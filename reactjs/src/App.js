@@ -7,12 +7,16 @@ import {HeaderNavbar, ImageSection, ReserveByPhone, OpeningHours} from "./main/m
 
 import { CreateBookingRequestContent } from './booking/createBookingRequest';
 
-import {BookingInfoList} from './booking/bookingList'
+import {CreatedBookingList} from './booking/bookingList'
 
+import { useNavigate } from 'react-router-dom';
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { ContextWrapper } from './booking/context';
+
+import { CreatedBookingDetail } from './booking/bookingDetail'; 
+import { useEffect } from 'react';
 
 function App() {
 
@@ -29,7 +33,6 @@ function App() {
 
   const CreateBookingRequest = () => {
     document.body.style.overflow = 'hidden';
-    
     return <ContextWrapper>
       <div id='create-booking-request-wrapper'>
         <HeaderNavbar/>
@@ -38,20 +41,29 @@ function App() {
     </ContextWrapper>
   } 
   
-  const CreatedBookingInfo = () => {
+  const BookingList = () => {
     document.body.style.overflow = 'hidden';
     return <div id='create-booking-info-wrapper'>
       <HeaderNavbar/>
-      <BookingInfoList/>
+      <CreatedBookingList/>
     </div>
   }
 
+  const BookingDetail =() => {
+    document.body.style.overflow = 'hidden';
+
+    return <div>
+      <HeaderNavbar/>
+      <CreatedBookingDetail/>
+    </div>
+  
+  }
   return (<BrowserRouter>
     <Routes>
       <Route path="/" element={<MainPage/>}/>
       <Route path="/create-booking-request" element={<CreateBookingRequest/>}/>
-      <Route path="/created-booking-list" element={<CreatedBookingInfo/>}/>
-      <Route path="/created-booking-detail/:bookingRequestId" element={<CreatedBookingInfo/>}/>
+      <Route path="/created-booking-list" element={<BookingList/>}/>
+      <Route path="/created-booking-detail/:bookingId" element={<BookingDetail/>}/>
     </Routes>
   </BrowserRouter>
   );

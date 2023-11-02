@@ -1,0 +1,30 @@
+
+
+.booking-detail{
+    margin:200px auto;
+    min-width: 400px;
+    width: 400px;
+    border: 8px double #a1a18d;
+    padding: 20px 40px 20px 40px;
+    min-height: 580px;
+    height: 580px;
+}
+
+
+
+.booking-detail-content{
+    text-align: center;
+    margin-bottom: 25px;
+
+}
+.section-article{
+    margin-bottom:10px;
+    margin-top:30px;
+}
+
+
+.booking-id{
+    position: relative;
+    float:right;
+
+}
