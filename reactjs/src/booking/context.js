@@ -13,7 +13,7 @@ export const ContextWrapper = (props) => {
     const getDataForShortInfo = () => {return shortInfoData}
 
     //use context to fill choose table short info after submitting form on main page 
-    //or after rendering form in create booking 
+    //or after rendering form in create booking request/
     
 
 

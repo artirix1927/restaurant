@@ -51,6 +51,12 @@ float:right;
 
 }
 
+.seeourmenu:hover{
+    text-decoration: none;
+    color:rgb(103, 103, 103);
+
+}
+
 .imagesection{
 height:50%;
 position:relative;

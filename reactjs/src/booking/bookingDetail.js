@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import s from '../css/booking_detail.module.css'
 
 import { useNavigate, useParams } from "react-router-dom";
@@ -18,7 +18,7 @@ export const CreatedBookingDetail = () => {
     const navigate = useNavigate()
     useEffect(()=>{
         const doAxios = () => {
-            const userData = JSON.parse(localStorage('userBoookingData'))
+            const userData = JSON.parse(localStorage('userData'))
             axios.post(`http://127.0.0.1:8000/api/get-booking-by-id/${bookingId}`, userData).then((res)=>{
                 setContent(<BookingCard data={res.data.userBooking}/>)
             }
@@ -34,7 +34,7 @@ export const CreatedBookingDetail = () => {
             clearInterval(interval);
         };
 
-    },[])
+    })
 
     return <div className={s['booking-detail']}> 
         <div>
@@ -55,11 +55,10 @@ const BookingCard = (props) => {
     const navigate = useNavigate()
 
     const deleteButtonOnClick = () =>{
-        const userData = JSON.parse(localStorage('userBoookingData'))
+        const userData = JSON.parse(localStorage('userData'))
 
         axios.delete(`http://127.0.0.1:8000/api/delete-booking-by-id/${data.id}`, userData)
-        .catch(error=>{navigate('/created-booking-list')}
-            
+        .catch(()=>{navigate('/created-booking-list')}
         )
         
     }

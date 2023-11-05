@@ -70,7 +70,7 @@ class GetBookingRequestById(APIView):
     def post(self, request, id): 
         booking = BookingRequest.objects.get(pk=id)
 
-        if not self.checkForBookingCreator(booking, request):
+        if not checkForBookingCreator(booking, request):
             return Response(status=403)
 
         serialized_booking = BookingRequestSerializer(booking).data
@@ -81,7 +81,7 @@ class DeleteBookingRequestById(APIView):
     def delete(self, request, id):
         booking = BookingRequest.objects.get(pk=id)
 
-        if not self.checkForBookingCreator(booking, request):
+        if not checkForBookingCreator(booking, request):
             return Response(status=403)
         
         booking.delete()

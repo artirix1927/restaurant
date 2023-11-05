@@ -18,7 +18,7 @@ import {format, parseJSON} from 'date-fns'
 
 import axios from "axios";
 
-import {json, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 
 
@@ -55,7 +55,7 @@ export const CreateBookingRequestContent = () => {
         const time = format(parsedBookingStartDateTime, "H:mm");
 
         setDataForShortInfo(date, time, userRequirementsData.guests)
-    },[])
+    }, [])
 
 
     useEffect(() => {
@@ -132,7 +132,7 @@ export const CreateBookingRequestContent = () => {
 
 
 const FormikForm = forwardRef((props, refs)=>{
-    const phoneRegExp = "^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$"
+    const phoneRegExp = `^[/+]?[(]?[0-9]{3}[)]?[-/s/.]?[0-9]{3}[-/s/.]?[0-9]{4,6}$`
 
     const validationSchema =  Yup.object().shape({
         clientName: Yup.string().required(),
@@ -149,11 +149,11 @@ const FormikForm = forwardRef((props, refs)=>{
 
         axios.post('http://127.0.0.1:8000/api/create-booking-request', 
         {bookingRequestData: dataForApi}).then((res) => {
-            const userBookingData = {phoneNumber: values.clientTel, email: values.clientEmail}
+            const userData = {phoneNumber: values.clientTel, email: values.clientEmail}
         
             localStorage.setItem('isBookingCreated', true);
 
-            localStorage.setItem('userBoookingData', JSON.stringify(userBookingData))
+            localStorage.setItem('userData', JSON.stringify(userData))
             
             navigate('/created-booking-list')
             

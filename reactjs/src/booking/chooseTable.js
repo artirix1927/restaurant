@@ -3,7 +3,7 @@
 import s from '../css/choose_table_style.module.css'
 import sArrows from '../css/arrows_style.module.css'
 
-import { useContext, useEffect} from 'react'
+import { useContext} from 'react'
 
 import { closeTableChoosingWindow } from './booking'
 
