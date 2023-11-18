@@ -50,10 +50,10 @@ export const TableElement = (props) => {
     let isActiveClass = props.active ? s['table-element-active'] : ''
 
     return <div className={`${s['table-element']} ${isActiveClass}`} id={props.data.table.id} max_guests={props.data.table.max_guests} 
-    key={props.data.table.id} onClick={(e) => {props.tableElementHandler(e, props.dataForTableElementHandler, props.dataForTableElementHandler.nav);}} >
+    key={props.data.table.id} onClick={(e) => {props.tableElementHandler(e, props.dataForTableElementHandler, props.dataForTableElementHandler.nav);}}>
     {props.data.time}  
     <p className={s['tags-for-table']}>{props.data.table.tags.toString()} ({props.data.table.max_guests})</p>
-    <p className={`${s['tags-for-table']} ${s['table-num']}`}> Table {props.data.table.id}</p>
+    <p className={`${s['tags-for-table']} ${s['table-num']}`}>Table {props.data.table.id}</p>
 </div>}
 
 

@@ -6,32 +6,18 @@ import { Formik, Form, FastField } from "formik";
 
 import * as Yup from 'yup';
 
-import Flatpickr from "react-flatpickr";
-
 import { forwardRef, useContext, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 
 import { MainPageContext } from "./context";
 import { TableElement,ChooseTableModal} from "./chooseTable";
-import {format, parseJSON} from 'date-fns'
+import {format, formatISO, parseJSON, parseISO} from 'date-fns'
 
+import { apiRoute } from './constants';
 
 import axios from "axios";
 
 import {useNavigate} from "react-router-dom";
-
-
-
-
-//flatpickr cfg 
-const optinosForFlatpickr = {
-    allowInput:false,
-    enableTime:true,
-    altInput: true,
-    altFormat: "D, d M H:i",
-    time_24hr: true,
-    disableMobile: "true",
-    }
 
 
 export const CreateBookingRequestContent = () => {
@@ -62,7 +48,7 @@ export const CreateBookingRequestContent = () => {
         let date = format(parsedBookingStartDateTime, "yyyy-MM-dd");
         const time = format(parsedBookingStartDateTime, "H:mm");
 
-        axios.post("http://127.0.0.1:8000/api/get-tables", {
+        axios.post(`${apiRoute}/get-tables`, {
         
             time: time,
             date: date,
@@ -134,20 +120,28 @@ export const CreateBookingRequestContent = () => {
 const FormikForm = forwardRef((props, refs)=>{
     const phoneRegExp = `^[/+]?[(]?[0-9]{3}[)]?[-/s/.]?[0-9]{3}[-/s/.]?[0-9]{4,6}$`
 
+    const userRequirementsData = props.userRequirementsData;
+
+    const bookingStartTime = parseISO(userRequirementsData.bookingStart)
+    const bookingEndTime = parseISO(userRequirementsData.bookingEnd)
+
+    const bookingTimeFieldValue = `${format(bookingStartTime, "E, d LLL")} ${format(bookingStartTime, "H:mm")}-${format(bookingEndTime, "H:mm")}`
+
+    const navigate = useNavigate();
+
     const validationSchema =  Yup.object().shape({
         clientName: Yup.string().required(),
         clientEmail: Yup.string().email('Email is not valid').required(),
         clientTel: Yup.string().matches(phoneRegExp, 'Phone number is not valid').required(),
     })
 
-    const navigate = useNavigate();
 
     const submitHandler = (values) =>{ 
 
-        let dataForApi = Object.assign({}, values)
+        let dataForApi = Object.assign({bookingStart:formatISO(bookingStartTime), bookingEnd:formatISO(bookingEndTime)}, values)
         dataForApi.table = refs.tableChosen.current;
 
-        axios.post('http://127.0.0.1:8000/api/create-booking-request', 
+        axios.post(`${apiRoute}/create-booking-request`, 
         {bookingRequestData: dataForApi}).then((res) => {
             const userData = {phoneNumber: values.clientTel, email: values.clientEmail}
         
@@ -161,15 +155,13 @@ const FormikForm = forwardRef((props, refs)=>{
         alert(error.response.data)
     })}
 
-    const userRequirementsData = props.userRequirementsData;
-
     return <Formik innerRef={refs.formik} enableReinitialize={true} 
             
         initialValues={
 
-            {table: `${userRequirementsData.tableTags} : Table ${refs.tableChosen.current}`, 
-            guests: userRequirementsData.guests, bookingStart: userRequirementsData.bookingStart, 
-            bookingEnd:userRequirementsData.bookingEnd,clientName:'', clientEmail: '', clientTel:''}
+            {table:`Table ${refs.tableChosen.current} : ${userRequirementsData.tableTags}` , 
+            guests: userRequirementsData.guests, 
+            clientName:'', clientEmail: '', clientTel:'', bookingTime: bookingTimeFieldValue}
         }
 
         onSubmit={values=>submitHandler(values)}
@@ -178,16 +170,15 @@ const FormikForm = forwardRef((props, refs)=>{
         >
         {({ errors, touched }) => (
             <Form>
+                <ClientPersonalInfoFields/>
+                {/* {errors.clientName && touched.clientName && <div>{errors.clientName}</div>}
+                {errors.clientEmail && touched.clientEmail && <div>{errors.clientEmail}</div>}
+                {errors.clientTel && touched.clientTel&& <div>{errors.clientTel}</div>} */}
+
+                <br/>
                 <TableInfoFields/>
 
-                <BookingFrameInfoFields bookingStart={userRequirementsData.bookingStart} 
-                bookingEnd={userRequirementsData.bookingEnd}/> 
-
-                <ClientPersonalInfoFields/>
-                {errors.clientName && touched.clientName && <div>{errors.clientName}</div>}
-                {errors.clientEmail && touched.clientEmail && <div>{errors.clientEmail}</div>}
-                {errors.clientTel && touched.clientTel&& <div>{errors.clientTel}</div>}
-
+                <br/>
                 <button className="btn btn-success" type="submit">Submit</button>
             </Form>
         )}
@@ -196,56 +187,45 @@ const FormikForm = forwardRef((props, refs)=>{
 }
 )
 
-const GroupFieldTitle = (props) => {return <h4 style={{textAlign:"center"}}>{props.children}</h4>}
+const FormFieldWrapper = (props) => {return <div className={s['form-field-wrapper']}>
+        <i className={`${s['icon-inside-input']} bi bi-${props.iconName}`}></i>
+        {props.children}
+</div>}
 
 const TableInfoFields = () => {return <div>
-    <GroupFieldTitle>Table Info</GroupFieldTitle>
+    <FormFieldWrapper iconName='journal'>
+        <FastField type="text" className={`${s['form-control']} ${s['round-top']} form-control`} name="table" 
+        disabled={true}/>
+    </FormFieldWrapper>
 
-    <label htmlFor="table">Table:</label>
-    <FastField type="text" className={`${s['form-control']} form-control`} name="table" 
-    disabled={true} 
-    />
+    <FormFieldWrapper iconName='person'>
+        <FastField type="number" className={`${s['form-control']} form-control`} name="guests"
+        disabled={true}/>
+    </FormFieldWrapper>
 
-    <label htmlFor="guests">Guests:</label>
-    <FastField type="number" className={`${s['form-control']} form-control`} name="guests"
-    disabled={true}
-    /> 
+    <FormFieldWrapper iconName='alarm'>
+        <FastField className={`${s['form-control']} form-control`} 
+        name="bookingTime" 
+        disabled={true}/>
+    </FormFieldWrapper>
 
 </div>}
 
 
-const BookingFrameInfoFields = forwardRef((props)=>{return <div>
-    <GroupFieldTitle>Booking Time</GroupFieldTitle>
 
-    <label htmlFor="bookingStart">Booking Start:</label>
-    <Flatpickr className={`${s['form-control']} form-control`} 
-    options={optinosForFlatpickr} name="bookingStart" defaultValue={props.bookingStart} 
-    disabled={true}
-    />
-                    
-    <label htmlFor="bookingEnd">Booking End:</label>
-    <Flatpickr className={`${s['form-control']} form-control`} 
-    disabled={true} options={optinosForFlatpickr} name="bookingEnd" defaultValue={props.bookingEnd}/>
-
-</div>})
 
 
 const ClientPersonalInfoFields = () =>{return <div>
-    <GroupFieldTitle>Personal Info</GroupFieldTitle>
-
-    <label htmlFor="clientName">Name:</label>
-    <FastField type="text" className={`${s['form-control']}  form-control`} 
-    name="clientName" 
+    <FastField type="text" className={`${s['form-control']} ${s['round-top']} form-control`} 
+    name="clientName" placeholder="Name"
     />
 
-    <label htmlFor="clientTel">Phone Number:</label>
     <FastField type="tel" className={`${s['form-control']}  form-control`} 
-    name="clientTel" 
+    name="clientTel" placeholder="Phone number"
     />
 
-    <label htmlFor="clientEmail">Email:</label>
     <FastField type="email" className={`${s['form-control']}  form-control`} 
-    name="clientEmail"
+    name="clientEmail" placeholder="Email"
     />
 </div>}
 
@@ -271,7 +251,7 @@ const setCurrentTableElementTo = (tableElem, formikRef, tableChosen) => {
 
     tableElem.classList.add(sC['table-element-active']) ;
 
-    const textForTableField = tableElem.childNodes[1].textContent + ': ' + tableElem.childNodes[2].textContent
+    const textForTableField = `${tableElem.childNodes[2].textContent} : ${tableElem.childNodes[1].textContent}`
     formikRef.current.setFieldValue('table', textForTableField);
 
 }

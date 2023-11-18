@@ -36,7 +36,7 @@ const HeaderNavbar = () => {
     return <header id="navbar" className={s.navbar} ref={navbarRef}>
 
     <div className={s['header-content']}>
-        <Link><button id="bookatablenavbar" type="button" className={`${s['book-a-table-navbar']} btn btn-outline-secondary `}>BOOK A TABLE</button></Link>
+        <Link to='/'><button id="bookatablenavbar" type="button" className={`${s['book-a-table-navbar']} btn btn-outline-secondary `}>BOOK A TABLE</button></Link>
         <Link to='/created-booking-list' className={s['link']}><button type="button" className={` btn btn-outline-secondary ${s['my-bookings-btn']} ${s[showBtn]}`}>MY BOOKINGS</button></Link>
         <a className={`btn ${s.seeourmenu}`} id="seeourmenu">SEE OUR MENU</a>
         
@@ -51,7 +51,7 @@ const HeaderNavbar = () => {
 
 
 const LogoLink = () => {return <div className={s.logolink}>
-        <a href="/"><img className={s.logoimglink} src={logo}/></a>
+        <Link to='/'><img className={s.logoimglink} src={logo}/></Link>
     </div>
 }
 

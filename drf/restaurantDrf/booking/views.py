@@ -3,6 +3,7 @@ from datetime import datetime
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from rest_framework import viewsets
 
 from .models import BookingRequest, Table
 
@@ -10,42 +11,48 @@ from .classes import FreeTablesFinder
 
 from .serializers import BookingRequestSerializer
 
-from django.http import QueryDict
+from django_filters import rest_framework as filters
+
+from django.db import transaction
+
+class BookingListFilter(filters.FilterSet):
+    email = filters.CharFilter(field_name='client_email')
+    phoneNumber = filters.CharFilter(field_name='client_number')
+
+
 
 # Create your views here.
-class GetTables(APIView):
+class GetTablesView(APIView):
     def post(self, request):
-    
         data = request.data
         tf = FreeTablesFinder(data['date'], data['time'], data['guests'])
         free_tables = tf.get_serialized_tables()
         booking_frame = tf.get_booking_frame()
-
-
-        
-        # return Response({"free_tables": free_tables, "booking_frame": (booking_start, booking_end)})
     
         return Response({"free_tables": free_tables, "booking_frame": booking_frame})
 
+class BookingRequestViewSet(viewsets.ModelViewSet):
+    queryset = BookingRequest.objects.all()
+    lookup_field = ('id')
 
-class CreateBookingRequest(APIView):
-    def post(self, request):
+    filterset_class = BookingListFilter
+    filter_backends = (filters.DjangoFilterBackend,)
+
+    @transaction.atomic
+    def create(self, request):
         data = request.data['bookingRequestData']
 
-        date = datetime.fromisoformat(data['bookingStart']).strftime("%Y-%m-%d")
-        time = datetime.fromisoformat(data['bookingStart']).strftime("%H:%M")
+        date_time = datetime.fromisoformat(data['bookingStart'])
         guests = data['guests']
-
-        ft = FreeTablesFinder(date,time,guests)
-
+     
+        ft = FreeTablesFinder(date_time.strftime("%Y-%m-%d"),date_time.strftime("%H:%M"),guests)
+        
         table = Table.objects.get(pk=data['table'])
         table_tags = table.tags.all()
 
-        if table in ft.get_busy_tables():
-            msg = '''Oops, it seems like the table is already booked. 
-            Please try another table or pick a different time'''
-            return Response(data=msg, status=400)
-
+        #check if table is busy
+        if not checkForTableBusiness(table,ft.get_busy_tables()):
+            raise TableIsAlreadyBusy
         
         booking_request = BookingRequest.objects.create(guests=data['guests'], booking_start=data['bookingStart'], 
                                                         booking_end=data['bookingEnd'], client_name=data['clientName'], 
@@ -56,37 +63,49 @@ class CreateBookingRequest(APIView):
         booking_request.tags_for_table.set(table_tags)
 
         return Response({"bookingRequestId":booking_request.id})
-
-
     
-class GetBookingsRequestsForUser(APIView):
-    def post(self, request):
-        user_bookings = BookingRequest.objects.filter(client_number = request.data['phoneNumber'], client_email=request.data['email'])
+    def list(self, request):
+        user_bookings = self.filter_queryset(self.queryset)
         serialized_user_bookings = BookingRequestSerializer(user_bookings, many=True).data
         return Response({'userBookings': serialized_user_bookings})
     
-
-class GetBookingRequestById(APIView):
-    def post(self, request, id): 
-        booking = BookingRequest.objects.get(pk=id)
-
-        if not checkForBookingCreator(booking, request):
-            return Response(status=403)
-
+    @transaction.atomic
+    def retrieve (self, request, id):
+        #must return 1 booking by id 
+        booking = self.get_object()
+        #print(booking)
         serialized_booking = BookingRequestSerializer(booking).data
+
+        if not checkForBookingCreator(booking, request.query_params):
+            raise BookingCreatedByAnotherUser
+        
         return Response({'userBooking': serialized_booking})
 
+    
+    @transaction.atomic
+    def destroy(self, request, id):
 
-class DeleteBookingRequestById(APIView):
-    def delete(self, request, id):
-        booking = BookingRequest.objects.get(pk=id)
+        #must return 1 booking by id 
+        booking = self.get_object()
 
-        if not checkForBookingCreator(booking, request):
-            return Response(status=403)
+        if not checkForBookingCreator(booking, request.data):
+            raise BookingCreatedByAnotherUser
         
         booking.delete()
         return Response({'message': "successfully deleted your booking request"})
+    
 
-def checkForBookingCreator(booking: BookingRequest, request):
-    userData = request.data['userData']
+
+def checkForTableBusiness(table, busy_tables):
+    return not (table in busy_tables)
+
+def checkForBookingCreator(booking: BookingRequest, data):
+    userData = data
     return (booking.client_email == userData['email'] and booking.client_number == userData['phoneNumber'])
+     
+
+class BookingCreatedByAnotherUser(Exception):
+    pass
+
+class TableIsAlreadyBusy(Exception):
+    pass

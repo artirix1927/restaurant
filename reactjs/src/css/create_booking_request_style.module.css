@@ -1,16 +1,20 @@
 .form-control{
-border: 1px solid grey;
 background-color: white;
-height: 34px ;
-margin-bottom: 12px;
+height: 44px ;
 text-align: start;
 font-size:16px;
 color:black;
 font-weight: normal;
+border-radius: 0px;
+padding: 0px 30px;
+box-shadow: 0 0 0px 1000px #ffffff inset !important;
+}
+
+.round-top{
+    border-radius: 8px 8px 0px 0px;
 }
 
 .form-control[readonly]{
-    border: 1px solid grey;
     background-color: white;
 }
 
@@ -26,6 +30,17 @@ width:40%;
 min-width: 400px;
 max-width: 400px;
 position: relative;
+}
+
+.form-field-wrapper{ 
+    display:flex;
+    align-items:center;
+}
+
+.icon-inside-input{
+    font-size:23px;
+    padding: 0px 4px;
+    position: absolute;
 }
 
 .create-booking-content{

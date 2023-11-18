@@ -20,9 +20,9 @@ from booking.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/get-tables', GetTables.as_view()),
-    path('api/create-booking-request', CreateBookingRequest.as_view()),
-    path('api/get-user-bookings', GetBookingsRequestsForUser.as_view()),
-    path('api/get-booking-by-id/<int:id>', GetBookingRequestById.as_view()),
-    path('api/delete-booking-by-id/<int:id>', DeleteBookingRequestById.as_view()),
+    path('api/v1/get-tables', GetTablesView.as_view()),
+    path('api/v1/create-booking-request', BookingRequestViewSet.as_view({'post':'create'})),
+    path('api/v1/get-user-bookings', BookingRequestViewSet.as_view({'get':'list'})),
+    path('api/v1/get-booking-by-id/<int:id>', BookingRequestViewSet.as_view({'get':'retrieve'})),
+    path('api/v1/delete-booking-by-id/<int:id>', BookingRequestViewSet.as_view({'delete':'destroy'})),
 ]

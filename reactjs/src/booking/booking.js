@@ -18,6 +18,8 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 
+import { apiRoute } from './constants';
+
 const dateFormat = "E, d LLL"
 
 export const BookingModal = () => {
@@ -55,13 +57,14 @@ const FormFields = (props) => {
 
         setDataForShortInfo(format(fpDate.current.flatpickr.latestSelectedDateObj, dateFormat),timeFieldValue,guestsFieldValue)
 
-        axios.post("http://127.0.0.1:8000/api/get-tables", {
-
+        axios.post(`${apiRoute}/get-tables`, 
+                {
                 time: timeFieldValue,
                 date: dateFieldValue,
                 guests: guestsFieldValue,
+                }
 
-        }).then((res) => {
+        ).then((res) => {
             console.log(timeFieldValue)
             let free_tables = res.data.free_tables;
             let booking_frame = res.data.booking_frame;

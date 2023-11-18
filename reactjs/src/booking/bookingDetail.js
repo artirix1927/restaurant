@@ -7,6 +7,8 @@ import axios from 'axios';
 
 import {format, parseJSON} from 'date-fns'
 
+import { apiRoute } from './constants';
+
 const dateFormat = "E, d LLL H:mm"
 
 
@@ -18,8 +20,8 @@ export const CreatedBookingDetail = () => {
     const navigate = useNavigate()
     useEffect(()=>{
         const doAxios = () => {
-            const userData = JSON.parse(localStorage('userData'))
-            axios.post(`http://127.0.0.1:8000/api/get-booking-by-id/${bookingId}`, userData).then((res)=>{
+            const userData = JSON.parse(localStorage.getItem('userData'))
+            axios.get(`${apiRoute}/get-booking-by-id/${bookingId}`, {params:userData}).then((res)=>{
                 setContent(<BookingCard data={res.data.userBooking}/>)
             }
         ).catch(error=>{
@@ -34,7 +36,7 @@ export const CreatedBookingDetail = () => {
             clearInterval(interval);
         };
 
-    })
+    },[])
 
     return <div className={s['booking-detail']}> 
         <div>
@@ -55,20 +57,14 @@ const BookingCard = (props) => {
     const navigate = useNavigate()
 
     const deleteButtonOnClick = () =>{
-        const userData = JSON.parse(localStorage('userData'))
+        const userData = JSON.parse(localStorage.getItem('userData'))
 
-        axios.delete(`http://127.0.0.1:8000/api/delete-booking-by-id/${data.id}`, userData)
-        .catch(()=>{navigate('/created-booking-list')}
+        axios.delete(`${apiRoute}/delete-booking-by-id/${data.id}`, {data:userData}).then(
+            navigate('/created-booking-list')
         )
         
     }
-
-        
-        
-
-       
     
-
     return <div>
         <div className={s['booking-detail-content']}>
             <h2 className={s['booking-info-text']}>Booking Info</h2>
