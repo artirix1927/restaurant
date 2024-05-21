@@ -18,7 +18,7 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 
-import { apiRoute } from './constants';
+import { apiRoute } from '../constants';
 
 const dateFormat = "E, d LLL"
 

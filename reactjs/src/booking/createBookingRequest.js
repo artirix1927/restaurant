@@ -13,7 +13,7 @@ import { MainPageContext } from "./context";
 import { TableElement,ChooseTableModal} from "./chooseTable";
 import {format, formatISO, parseJSON, parseISO} from 'date-fns'
 
-import { apiRoute } from './constants';
+import { apiRoute } from '../constants';
 
 import axios from "axios";
 
@@ -75,6 +75,7 @@ export const CreateBookingRequestContent = () => {
 
                 let dataForTableElement ={ time:time, table: table}
                 let dataForHandleBtn = {tableChosen:tableChosen, formikRef:formikRef, nav:null}
+                
                 const tableElement = <TableElement data={dataForTableElement} 
                                                    tableElementHandler = {handleTableElementClick}
                                                    dataForTableElementHandler={dataForHandleBtn} key={table.id} 

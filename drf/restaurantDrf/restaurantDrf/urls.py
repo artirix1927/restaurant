@@ -13,10 +13,21 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.urls import re_path
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls.static import static
 
 from booking.views import *
+from menu.views import *
+
+from rest_framework_swagger.views import get_swagger_view
+
+
+schema_view = get_swagger_view(title='Pastebin API')
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,4 +36,15 @@ urlpatterns = [
     path('api/v1/get-user-bookings', BookingRequestViewSet.as_view({'get':'list'})),
     path('api/v1/get-booking-by-id/<int:id>', BookingRequestViewSet.as_view({'get':'retrieve'})),
     path('api/v1/delete-booking-by-id/<int:id>', BookingRequestViewSet.as_view({'delete':'destroy'})),
+    path('api/v1/get-menu', MenuItemViewset.as_view({'get':'list'})),
+    path('api/v1/get-categories', CategoryViewSet.as_view({'get':'list'})),
+    re_path(r'^$', schema_view)
+    
+
+
+
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

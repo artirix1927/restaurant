@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 import { Link } from "react-router-dom";
 import { Field, Form, Formik } from "formik";
 
-import { apiRoute } from "./constants";
+import { apiRoute } from "../constants";
 
 const dateFormat = "E, d LLL H:mm"
 
@@ -23,6 +23,7 @@ export const CreatedBookingList = () => {
         const doAxios = () => {axios.get(`${apiRoute}/get-user-bookings`, 
         {params:{phoneNumber: userData.phoneNumber, email:userData.email}}).then(
             res => {
+            console.log(res)
             setUserBookings(res.data.userBookings)
         })}
 

@@ -7,7 +7,7 @@ import axios from 'axios';
 
 import {format, parseJSON} from 'date-fns'
 
-import { apiRoute } from './constants';
+import { apiRoute } from '../constants';
 
 const dateFormat = "E, d LLL H:mm"
 

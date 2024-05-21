@@ -1,3 +1,9 @@
+.body{
+    overflow: hidden;
+}
+
+
+
 .form-control{
 background-color: white;
 height: 44px ;
