@@ -13,9 +13,11 @@ import { useState } from 'react'
 
 
 export const Menu = () => {
-    const [categories, setCategories] = useState([])
 
-    const [isModalOpened, setIsModalOpened] = useState(false);
+
+
+    const [categories, setCategories] = useState([])
+    const activeCategory = useRef();
 
     useEffect(()=>{
         axios.get(`${apiRoute}/get-categories`).then((res)=>{
@@ -26,52 +28,114 @@ export const Menu = () => {
     },[])
 
     const [menu, setMenu] = useState([])
+    const [constantMenu, setConstantMenu] = useState([])
+
+
+    const getRows = (data) => {
+        return data.reduce(function (rows, key, index) { 
+        return (index % 2 == 0 ? rows.push([key]) 
+          : rows[rows.length-1].push(key)) && rows;
+      }, []); 
+    }
+
+    const resetMenu = () =>{
+        setMenu(constantMenu)
+    }
+
     useEffect(()=>{
         axios.get(`${apiRoute}/get-menu`).then((res)=>{
             setMenu(res.data)
+            setConstantMenu(res.data)
         })
 
 
     },[])
-  
-    return <div>
-        {menu.map((item)=>{
-            return <MenuItemModal data={item} setModalState={setIsModalOpened}/>
-        })}
-        
-        <div className={s['menu-category-list']}>
-            {categories.map((category)=>{
-                return <MenuCategory data={category} />
-            })}
-        </div>
-        
-        <div className={`${s['menu-item-list']}`}>
-            {menu.map((item)=>{
-                return <MenuItem data={item} modalState={isModalOpened} setModalState={setIsModalOpened} />
-            })}
-        </div>
-    </div>
     
+  
+    const modalRef = createRef();   
+    const [modalInfo, setModalInfo] = useState({})
+    const [isModalOpened, setIsModalOpened] = useState(false);
 
+    return <div>
+        <div>
+            <MenuItemModal setModalState={setIsModalOpened} data={modalInfo} ref={modalRef}/>
+        </div>
+
+        <div className={s['menu']}>
+
+            <div className={s['menu-category-list']}>
+                {categories.map((category)=>{
+                    return <MenuCategory data={category} 
+                                        activeCategory={activeCategory} 
+                                        setMenu={setMenu} 
+                                        resetMenu={resetMenu}/>
+                })}
+            </div>
+
+
+            <div className={`${s['menu-item-list']}`}>    
+                            {getRows(menu).map((row)=>(
+                                    <div className='row'>
+                                        {row.map(col=> (
+                                            <div className='col-lg-6 gy-4'>
+                                                <MenuItem data={col} 
+                                                    modalState={isModalOpened} 
+                                                    setModalState={setIsModalOpened} 
+                                                    setModalInfo={setModalInfo}
+                                                    modalRef={modalRef}
+                                                    />
+                                            </div>
+                                            )
+                                        )
+                                        }
+                                    
+                                    </div>
+                            ))}
+            </div> 
+        </div>
+            
+        
+       
+    </div>
 
 }
 
 export const MenuCategory = (props) => {
+    const ref = props.activeCategory;
+    const categoryOnClick = (e) => {
+        if (ref.current)
+            ref.current.className = s['menu-category-item'];
 
-    return <div className={s['menu-category-item']}>
-        <img className={s['menu-category-item-img']} src={props.data.img}/>
-        <p className={s['menu-category-item-name']}>{props.data.name}</p>
-    </div>
+        if (e.currentTarget == ref.current){
+            props.resetMenu()
+            ref.current = null
+        }
+        else{
+            e.currentTarget.className = `${s['menu-category-item']} ${s['menu-category-item-active']}`;
+            ref.current = e.currentTarget;
+            props.setMenu(props.data.menu_items)
+        }
+    } 
+
+    return <div className={s['menu-category-item']} id={`${props.data.name}`} onClick={categoryOnClick}>
+            <figure><img className={s['menu-category-item-img']} src={props.data.img}/></figure>
+
+            <figcaption className={s['menu-category-item-name']} >{props.data.name}</figcaption>
+            
+        </div>
     
 }
 
 
 export const MenuItem = (props) => {
+
     const readMoreOnClick = (e) => {
-        const modalID = `modal${e.currentTarget.id}`;
         if (!props.modalState){
-            document.getElementById(modalID).style.display = 'block';
+            props.modalRef.current.style.display = 'block';
+            props.setModalInfo(props.data)
+            //overflow blocking
             document.body.style.overflow = 'hidden';
+            //add padding to compensate overflow hidden
             document.body.style.paddingRight = "15px";
             props.setModalState(true);
         }
@@ -92,18 +156,20 @@ export const MenuItem = (props) => {
 }
 
 
-export const MenuItemModal = (props)=>{
-    const closeModalOnClick = (e) => {
-            const modalID = `modal${e.target.id}`
-            const elem = document.getElementById(modalID);
-            elem.style.display = 'none';
+
+
+
+export const MenuItemModal = forwardRef((props, ref) => {
+    const closeModalOnClick = () => {
+            ref.current.style.display = 'none';
+
             document.body.style.overflow ='visible';
             document.body.style.paddingRight = "0px";
+
             props.setModalState(false);
     }
 
-
-    return <div className={s['modal']} id={`modal${props.data.id}`}>
+    return <div className={s['modal']} ref={ref}>
         <i onClick={closeModalOnClick} class="bi bi-x-lg" 
         style={{position:"absolute", fontSize:"20px", color:"white", padding:2}}
         id={props.data.id}></i>
@@ -116,7 +182,7 @@ export const MenuItemModal = (props)=>{
             <p>{props.data.desc}</p>
         </div>
     </div>
-}
+});
     
 export const MenuImageSectionContent = () => {
     return <div className={sM.sectioncontent}>

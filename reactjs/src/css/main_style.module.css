@@ -16,7 +16,7 @@ z-index:999;
 
 .navbar{
 position: fixed;
-background-color: transparent;
+background-color: #1C1C1C;
 width:100vw;
 height: 58px;
 -webkit-transition: background-color 600ms linear;

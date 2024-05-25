@@ -13,3 +13,4 @@ class TableAdmin(admin.ModelAdmin):
 @admin.register(BookingRequest)
 class BookingRequestAdmin(admin.ModelAdmin):
     pass
+

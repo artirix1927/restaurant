@@ -21,9 +21,15 @@ class MenuItemViewset(viewsets.ModelViewSet):
     serializer_class = MenuItemSerializer
     renderer_classes = (JSONRenderer, PNGRenderer, JPEGRenderer)
 
+    def get_serializer_context(self):
+        return {'request': self.request}
+
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     renderer_classes = (JSONRenderer, PNGRenderer, JPEGRenderer)
+
+    def get_serializer_context(self):
+        return {'request': self.request}

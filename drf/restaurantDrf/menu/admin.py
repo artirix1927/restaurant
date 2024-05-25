@@ -7,7 +7,19 @@ class MenuItemAdmin(admin.ModelAdmin):
     pass
     
 
+class MenuItemInlineAdmin(admin.TabularInline):
+     model = MenuItem
+
+
+class MenuItemInline(admin.TabularInline ):
+    model = MenuItem.categories.through
+    extra = 0
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    pass
+    model = Category
+    inlines = [MenuItemInline]
+    
+
+
+

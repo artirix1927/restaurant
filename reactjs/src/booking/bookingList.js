@@ -23,7 +23,6 @@ export const CreatedBookingList = () => {
         const doAxios = () => {axios.get(`${apiRoute}/get-user-bookings`, 
         {params:{phoneNumber: userData.phoneNumber, email:userData.email}}).then(
             res => {
-            console.log(res)
             setUserBookings(res.data.userBookings)
         })}
 

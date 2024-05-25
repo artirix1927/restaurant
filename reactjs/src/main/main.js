@@ -10,33 +10,39 @@ import { Link, redirect, useLocation, useNavigate } from 'react-router-dom'
 
 
 //header
-const HeaderNavbar = () => {
+const HeaderNavbar = (props) => {
     const navbarRef = useRef();
     const [showBtn, changeShowBtn] = useState('dont-show');
 
-    const navbarBackGroundHandler = () =>{
-        if (window.scrollY == 0){
-        document.getElementById('navbar').style.backgroundColor = 'transparent';
-        } else{
-        document.getElementById('navbar').style.backgroundColor = '#1C1C1C';}
-      }
+    const makeNavbarTransparentAt = new Array('/', '/menu');
+
+    const navbarBackGroundHandler = () => {
+        if (window.scrollY == 0)
+            navbarRef.current.style.backgroundColor = 'transparent';
+        else
+            navbarRef.current.style.backgroundColor = '#1C1C1C';
+    }
 
     useEffect(() => {
     if (localStorage.getItem('isBookingCreated')){
         changeShowBtn('show');
     }
 
+    if (makeNavbarTransparentAt.includes(window.location.pathname))
+        navbarRef.current.style.backgroundColor = 'transparent';
+    
     window.addEventListener('scroll', navbarBackGroundHandler);
     
     return () => {
         window.removeEventListener('scroll', navbarBackGroundHandler);
     };
+       
     }, []);
 
     return <header id="navbar" className={s.navbar} ref={navbarRef}>
 
     <div className={s['header-content']}>
-        <Link><button id="bookatablenavbar" type="button" className={`${s['book-a-table-navbar']} btn btn-outline-secondary `}>BOOK A TABLE</button></Link>
+        <Link to='/'><button id="bookatablenavbar" type="button" className={`${s['book-a-table-navbar']} btn btn-outline-secondary `}>BOOK A TABLE</button></Link>
         <Link to='/created-booking-list' className={s['link']}><button type="button" className={` btn btn-outline-secondary ${s['my-bookings-btn']} ${s[showBtn]}`}>MY BOOKINGS</button></Link>
         <Link className={`btn ${s.seeourmenu}`} to='/menu' id="seeourmenu">SEE OUR MENU</Link>
         
@@ -98,7 +104,6 @@ const ReserveByPhone = () => {
         const el = document.getElementById(targetId);
         if (el) {
         el.scrollIntoView();
-        console.log(el)
         }
         window.history.replaceState({}, '')
     }, [state]);

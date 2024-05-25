@@ -31,6 +31,8 @@ class GetTablesView(APIView):
         booking_frame = tf.get_booking_frame()
     
         return Response({"free_tables": free_tables, "booking_frame": booking_frame})
+    
+
 
 class BookingRequestViewSet(viewsets.ModelViewSet):
     queryset = BookingRequest.objects.all()

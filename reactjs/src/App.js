@@ -49,8 +49,13 @@ function App() {
   
   const BookingList = () => {
     document.body.style.overflow = 'hidden';
+
+    const navbarHandler = (navbarRef) =>{ 
+      navbarRef.current.style.backgroundColor = '1C1C1C';
+    }
+
     return <div id='create-booking-info-wrapper'>
-      <HeaderNavbar/>
+      <HeaderNavbar handler={navbarHandler}/>
       <CreatedBookingList/>
     </div>
   }
@@ -64,7 +69,7 @@ function App() {
   }
 
   const MenuPage = () => {
-    document.body.style.overflow = 'scroll';
+    document.body.style.overflow = 'visible';
     return <div>
         <HeaderNavbar/>
         <ImageSection><MenuImageSectionContent/></ImageSection>
