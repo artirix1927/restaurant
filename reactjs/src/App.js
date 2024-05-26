@@ -50,12 +50,9 @@ function App() {
   const BookingList = () => {
     document.body.style.overflow = 'hidden';
 
-    const navbarHandler = (navbarRef) =>{ 
-      navbarRef.current.style.backgroundColor = '1C1C1C';
-    }
 
     return <div id='create-booking-info-wrapper'>
-      <HeaderNavbar handler={navbarHandler}/>
+      <HeaderNavbar/>
       <CreatedBookingList/>
     </div>
   }

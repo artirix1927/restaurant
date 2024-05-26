@@ -81,6 +81,7 @@
 
 .menu-item-list-item-name{
     width:100%;
+    padding-bottom:0px;
     
 }
 
@@ -115,4 +116,33 @@ display:flex;
     transform: translate(-50%, -50%);
     width: 500px;
     border-radius: 8px;
+}
+
+
+.modal-item-content{
+    justify-content:center; 
+    text-align:center; 
+    box-shadow:0 6px 5px 0 rgba(204,204,204,.24); 
+    padding:10px 0px;
+}
+
+.modal-item-description{
+    justify-content:center; 
+    text-align:center; 
+    padding:20px 50px;
+}
+
+
+.modal-img{
+    width:100%;
+    height:320px; 
+    object-fit:cover;
+    border-radius:8px;
+}
+
+.modal-close-icon{
+    position:absolute;
+    font-size:20px;
+    color:white;
+    padding:2px;
 }

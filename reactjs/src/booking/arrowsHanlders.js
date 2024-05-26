@@ -25,20 +25,21 @@ export function handleArrowClick(e, dateFp, timeFp){
 
 //date arrows handling
 function increaseDate(value){
-let date = new Date(Date.parse(value));
-date.setDate(date.getDate()+1);
-return date;
+    let date = new Date(Date.parse(value));
+    date.setDate(date.getDate()+1);
+    return date;
 }
 
 function decreaseDate(value){
-let date = new Date(Date.parse(value));
-date.setDate(date.getDate()-1);
-return date;
+    let date = new Date(Date.parse(value));
+    date.setDate(date.getDate()-1);
+    return date;
 }
 
 function handleDateArrowClick(button){
     let date = null;
     let input = document.getElementById("booking-date-field");
+    
     if (button.getAttribute('class').includes("right")){
         date = increaseDate(input.value);
         input.value = date;
@@ -47,8 +48,6 @@ function handleDateArrowClick(button){
         input.value = date;
         }
     dateInput.setDate(date,false,"D,d M");
-    
-
 }
 
 

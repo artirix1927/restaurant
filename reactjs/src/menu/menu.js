@@ -30,7 +30,7 @@ export const Menu = () => {
     const [menu, setMenu] = useState([])
     const [constantMenu, setConstantMenu] = useState([])
 
-
+    //[1,2,3] => [[1,2], [3]]
     const getRows = (data) => {
         return data.reduce(function (rows, key, index) { 
         return (index % 2 == 0 ? rows.push([key]) 
@@ -103,9 +103,12 @@ export const Menu = () => {
 export const MenuCategory = (props) => {
     const ref = props.activeCategory;
     const categoryOnClick = (e) => {
+
+        //reseting previous
         if (ref.current)
             ref.current.className = s['menu-category-item'];
-
+        
+        //if clicked on already applied filter
         if (e.currentTarget == ref.current){
             props.resetMenu()
             ref.current = null
@@ -144,7 +147,7 @@ export const MenuItem = (props) => {
     return <div className={s['menu-item-list-item']} >
         <img className={s['menu-item-list-item-img']}src={props.data.img}/>
         <div className={`${s['menu-item-list-item-content']}`}>
-            <h5 className={s['menu-item-list-item-name']} style={{paddingBottom:'0'}}>{props.data.name}</h5>
+            <h5 className={s['menu-item-list-item-name']}>{props.data.name}</h5>
             <h5 className={s['menu-item-list-item-price']}>{props.data.price}$</h5>
         </div>
         <span className={s['menu-item-list-read-more']} onClick={readMoreOnClick} id={props.data.id}>
@@ -170,15 +173,14 @@ export const MenuItemModal = forwardRef((props, ref) => {
     }
 
     return <div className={s['modal']} ref={ref}>
-        <i onClick={closeModalOnClick} class="bi bi-x-lg" 
-        style={{position:"absolute", fontSize:"20px", color:"white", padding:2}}
-        id={props.data.id}></i>
-        <img src={props.data.big_img} width="100%" height={320} style={{objectFit:"cover", borderRadius:8}}/>
-        <div style={{justifyContent:"center", textAlign:"center", boxShadow:"0 6px 5px 0 rgba(204,204,204,.24)", padding:"10px 0px"}}>
-            <h5 className={s['menu-item-list-item-name']} style={{paddingBottom:'0'}}>{props.data.name}</h5>
+        <i onClick={closeModalOnClick} className={`${s['modal-close-icon']} bi bi-x-lg`} 
+                                       id={props.data.id}></i>
+        <img src={props.data.big_img} className={s['modal-img']}/>
+        <div className={s['modal-item-content']}>
+            <h5 className={s['menu-item-list-item-name']}>{props.data.name}</h5>
             <h5 className={s['menu-item-list-item-price']}>{props.data.price}$</h5>
         </div>
-        <div style={{justifyContent:"center", textAlign:"center", padding:"20px 50px"}}>
+        <div className={s['modal-item-description']}>
             <p>{props.data.desc}</p>
         </div>
     </div>

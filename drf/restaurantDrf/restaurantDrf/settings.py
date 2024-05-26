@@ -124,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Israel'
+TIME_ZONE = 'Canada/Eastern'
 
 USE_I18N = True
 

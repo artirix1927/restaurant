@@ -28,7 +28,7 @@ const HeaderNavbar = (props) => {
         changeShowBtn('show');
     }
 
-    if (makeNavbarTransparentAt.includes(window.location.pathname))
+    if (document.body.style.overflow != 'hidden')
         navbarRef.current.style.backgroundColor = 'transparent';
     
     window.addEventListener('scroll', navbarBackGroundHandler);
