@@ -13,14 +13,12 @@ import Flatpickr from "react-flatpickr";
 
 import axios from 'axios';
 
-import { format } from 'date-fns';
+import { format, formatISO} from 'date-fns';
 
 import { useNavigate } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 
 import { apiRoute } from '../constants';
-
-const dateFormat = "E, d LLL"
 
 export const BookingModal = () => {
     return <div id="booking" className={s.booking}>
@@ -43,6 +41,8 @@ const FormFields = (props) => {
     const fpTime = useRef();
     const fpDate = useRef();
     const guestsField = useRef();
+
+    const dateFormat = "E, d LLL"
     
     const {setDataForShortInfo} = useContext(MainPageContext)
 
@@ -51,26 +51,27 @@ const FormFields = (props) => {
     function handleFindBtnClick(){
         
         openTableChoosingWindow();
-        let timeFieldValue = fpTime.current.flatpickr.input.value; //get str from main input field
-        let dateFieldValue = fpDate.current.flatpickr.input.value; //get str from main input field
+        let timeFieldValue = fpTime.current.flatpickr.input.value; //like 12:00
         let guestsFieldValue = guestsField.current.value;
 
         setDataForShortInfo(format(fpDate.current.flatpickr.latestSelectedDateObj, dateFormat),timeFieldValue,guestsFieldValue)
 
         axios.post(`${apiRoute}/get-tables`, 
                 {
-                time: timeFieldValue,
-                date: dateFieldValue,
+                time: formatISO(fpTime.current.flatpickr.latestSelectedDateObj),
+                date: formatISO(fpDate.current.flatpickr.latestSelectedDateObj),
                 guests: guestsFieldValue,
                 }
 
         ).then((res) => {
-            console.log(timeFieldValue)
             let free_tables = res.data.free_tables;
             let booking_frame = res.data.booking_frame;
+            console.log(booking_frame)
             const listOfTables = document.getElementById('list-of-tables')
             let root = createRoot(listOfTables)
-    
+
+
+            //clearing from previous
             root.unmount();
             root = createRoot(listOfTables);
 

@@ -188,7 +188,7 @@ export const MenuItemModal = forwardRef((props, ref) => {
     
 export const MenuImageSectionContent = () => {
     return <div className={sM.sectioncontent}>
-        <h3>Menu</h3>
+        <h3>MENU</h3>
 
         <ImageSectionButtons/>
     </div>

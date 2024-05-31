@@ -45,18 +45,15 @@ class BookingRequestViewSet(viewsets.ModelViewSet):
     def create(self, request):
         '''creates a booking'''
         data = request.data['bookingRequestData']
+        # #check if table is busy
+        # if not checkForTableBusiness(table,ft.get_busy_tables()):
+        #     raise TableIsAlreadyBusy
 
-        date_time = datetime.fromisoformat(data['bookingStart'])
-        guests = data['guests']
-     
-        ft = FreeTablesFinder(date_time.strftime("%Y-%m-%d"),date_time.strftime("%H:%M"),guests)
-        
         table = Table.objects.get(pk=data['table'])
         table_tags = table.tags.all()
 
-        #check if table is busy
-        if not checkForTableBusiness(table,ft.get_busy_tables()):
-            raise TableIsAlreadyBusy
+        if not checkForTableBusiness(data,table):
+             raise TableIsAlreadyBusy
         
         booking_request = BookingRequest.objects.create(guests=data['guests'], booking_start=data['bookingStart'], 
                                                         booking_end=data['bookingEnd'], client_name=data['clientName'], 
@@ -104,6 +101,16 @@ class BookingRequestViewSet(viewsets.ModelViewSet):
 
 def checkForTableBusiness(table, busy_tables):
     return not (table in busy_tables)
+
+
+def checkForTableBusiness(data, table):
+    bk_datetime = data['bookingStart']
+
+    bk_guests = data['guests']
+
+    ft = FreeTablesFinder(bk_datetime,bk_datetime,bk_guests)
+    
+    return not (table in ft.get_busy_tables())
 
 def checkForBookingCreator(booking: BookingRequest, data):
     userData = data

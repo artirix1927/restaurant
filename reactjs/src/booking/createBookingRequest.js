@@ -45,21 +45,22 @@ export const CreateBookingRequestContent = () => {
 
 
     useEffect(() => {
-        let date = format(parsedBookingStartDateTime, "yyyy-MM-dd");
+        const listOfTables = document.getElementById('list-of-tables')
+
+        let root = createRoot(listOfTables)
+
         const time = format(parsedBookingStartDateTime, "H:mm");
 
         axios.post(`${apiRoute}/get-tables`, {
         
-            time: time,
-            date: date,
+            time: userRequirementsData.bookingStart,
+            date: userRequirementsData.bookingStart,
             guests: userRequirementsData.guests,
 
 
         }).then((res) => {
             let free_tables = res.data.free_tables;
-            const listOfTables = document.getElementById('list-of-tables')
-
-            let root = createRoot(listOfTables)
+            
             root.unmount()
             
             root = createRoot(listOfTables)
@@ -125,7 +126,6 @@ const FormikForm = forwardRef((props, refs)=>{
 
     const bookingStartTime = parseISO(userRequirementsData.bookingStart)
     const bookingEndTime = parseISO(userRequirementsData.bookingEnd)
-
     const bookingTimeFieldValue = `${format(bookingStartTime, "E, d LLL")} ${format(bookingStartTime, "H:mm")}-${format(bookingEndTime, "H:mm")}`
 
     const navigate = useNavigate();
@@ -138,8 +138,10 @@ const FormikForm = forwardRef((props, refs)=>{
 
 
     const submitHandler = (values) =>{ 
+        
+        let dataForApi = Object.assign({bookingStart:userRequirementsData.bookingStart, 
+                                        bookingEnd:userRequirementsData.bookingEnd}, values)
 
-        let dataForApi = Object.assign({bookingStart:formatISO(bookingStartTime), bookingEnd:formatISO(bookingEndTime)}, values)
         dataForApi.table = refs.tableChosen.current;
 
         axios.post(`${apiRoute}/create-booking-request`, 

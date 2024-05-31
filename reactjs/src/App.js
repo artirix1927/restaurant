@@ -39,6 +39,7 @@ function App() {
     </ContextWrapper>}
 
   const CreateBookingRequest = () => {
+    document.body.style.overflow = 'hidden';
     return <ContextWrapper>
       <div id='create-booking-request-wrapper'>
         <HeaderNavbar/>
@@ -58,6 +59,7 @@ function App() {
   }
 
   const BookingDetail =() => {
+    document.body.style.overflow = 'hidden';
     return <div>
       <HeaderNavbar/>
       <CreatedBookingDetail/>
@@ -66,7 +68,7 @@ function App() {
   }
 
   const MenuPage = () => {
-    document.body.style.overflow = 'visible';
+    document.body.style.overflow = 'scroll';
     return <div>
         <HeaderNavbar/>
         <ImageSection><MenuImageSectionContent/></ImageSection>

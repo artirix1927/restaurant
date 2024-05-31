@@ -14,8 +14,6 @@ const HeaderNavbar = (props) => {
     const navbarRef = useRef();
     const [showBtn, changeShowBtn] = useState('dont-show');
 
-    const makeNavbarTransparentAt = new Array('/', '/menu');
-
     const navbarBackGroundHandler = () => {
         if (window.scrollY == 0)
             navbarRef.current.style.backgroundColor = 'transparent';
@@ -24,11 +22,12 @@ const HeaderNavbar = (props) => {
     }
 
     useEffect(() => {
+        
     if (localStorage.getItem('isBookingCreated')){
         changeShowBtn('show');
     }
-
-    if (document.body.style.overflow != 'hidden')
+    console.log(isOverflown(document.body))
+    if (document.body.style.overflow != 'hidden' && document.body.style.overflow != '')
         navbarRef.current.style.backgroundColor = 'transparent';
     
     window.addEventListener('scroll', navbarBackGroundHandler);
