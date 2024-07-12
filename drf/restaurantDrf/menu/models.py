@@ -1,7 +1,5 @@
 from django.db import models
 
-from taggit.managers import TaggableManager
-
 
 # Create your models here.
 class Category(models.Model):
@@ -23,7 +21,7 @@ class MenuItem(models.Model):
     objects = models.Manager()
 
     name = models.TextField()
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=6, decimal_places=2)
     desc = models.TextField()
     img = models.ImageField(upload_to="images/menu/")
     big_img = models.ImageField(upload_to="images/menu/")

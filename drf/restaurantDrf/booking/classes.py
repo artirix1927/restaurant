@@ -2,7 +2,6 @@ import datetime
 
 from django.db.models import Q, QuerySet
 from django.utils.timezone import make_aware
-import pytz
 
 from .models import Table, BookingRequest
 
@@ -13,16 +12,36 @@ from rest_framework.serializers import ReturnDict
 from rest_framework.renderers import JSONRenderer
 
 
+class DatetimeFormatter:
+        def __init__(self, booking_date: str, booking_time: str):
+            #iso format strings
+            self.__booking_date = booking_date
+            self.__booking_time = booking_time
+
+
+        def get_formated_booking_start(self) -> datetime.datetime:
+            booking_start_time = datetime.datetime.fromisoformat(self.__booking_time)
+            booking_start_date = datetime.datetime.fromisoformat(self.__booking_date)
+            
+            booking_start = datetime.datetime.combine(date=booking_start_date.date(),  time=booking_start_time.time())
+            booking_start = make_aware(booking_start)
+            return booking_start 
+
 
 
 class FreeTablesFinder:
+    __booking_start: datetime.datetime
+    __booking_end: datetime.datetime
+    __booking_guests: int
+    formatter: DatetimeFormatter
+
 
     # gets strings values from html form
-    def __init__(self, booking_date: str, booking_time: str, booking_guests: str):
+    def __init__(self, booking_guests: str, formatter:DatetimeFormatter):
         #iso format strings
-        self.__booking_date = booking_date
-        self.__booking_time = booking_time
+        self.__booking_start = formatter.get_formated_booking_start()
         self.__booking_guests = booking_guests
+        self.formatter = formatter
 
     def _get_hours_for_booking_by_guests(self) -> datetime.timedelta:
         # for table of 4 and more people get 3 hours, less than for people get 2 hours
@@ -31,13 +50,11 @@ class FreeTablesFinder:
     def get_booking_frame(self) -> tuple[datetime.datetime]:
         #getting  date and time in different iso strings
     
-        booking_start = self.DatetimeFormatter(self.__booking_date,self.__booking_time).get_formated_booking_start()
-        
         hours_to_booking = self._get_hours_for_booking_by_guests()
 
-        booking_end = booking_start + hours_to_booking
+        self.__booking_end = self.__booking_start + hours_to_booking
     
-        return booking_start, booking_end
+        return self.__booking_start, self.__booking_end
 
     @staticmethod
     def __get_intersected_booking_requests(request_start, request_end) -> QuerySet[BookingRequest]:
@@ -62,9 +79,9 @@ class FreeTablesFinder:
         return reqs
 
     def get_busy_tables(self) -> list[Table]:
-        booking_start, booking_end = self.get_booking_frame()
+        self.__booking_start, self.__booking_end = self.get_booking_frame()
 
-        requests = self.__get_intersected_booking_requests(booking_start, booking_end)
+        requests = self.__get_intersected_booking_requests(self.__booking_start, self.__booking_end)
 
         busy_tables_list = [Table.objects.get(pk=table['tables']) for table in
                             requests.values('tables')]  # get table objects of all busy tables
@@ -89,20 +106,7 @@ class FreeTablesFinder:
     def get_rendered_tables(self):
         return JSONRenderer.render(self.get_serialized_tables())
     
-    class DatetimeFormatter:
-        def __init__(self, booking_date: str, booking_time: str):
-            #iso format strings
-            self.__booking_date = booking_date
-            self.__booking_time = booking_time
 
-
-        def get_formated_booking_start(self):
-            booking_start_time = datetime.datetime.fromisoformat(self.__booking_time)
-            booking_start_date = datetime.datetime.fromisoformat(self.__booking_date)
-            
-            booking_start = datetime.datetime.combine(date=booking_start_date.date(),  time=booking_start_time.time())
-            booking_start = make_aware(booking_start)
-            return booking_start 
 
 
         

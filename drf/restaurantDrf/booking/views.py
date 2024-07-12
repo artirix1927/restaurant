@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 from .models import BookingRequest, Table
 
-from .classes import FreeTablesFinder
+from .classes import FreeTablesFinder, DatetimeFormatter
 
 from .serializers import BookingRequestSerializer
 
@@ -15,9 +15,17 @@ from django_filters import rest_framework as filters
 
 from django.db import transaction
 
+from .funcs import checkForTableBusiness, checkForBookingCreator
+
+from .exceptions import TableIsAlreadyBusy, BookingCreatedByAnotherUser
+
 class BookingListFilter(filters.FilterSet):
     email = filters.CharFilter(field_name='client_email')
     phoneNumber = filters.CharFilter(field_name='client_number')
+
+    class Meta: 
+        model = BookingRequest
+        fields = ("client_email", "client_number",)
 
 
 
@@ -26,7 +34,10 @@ class GetTablesView(APIView):
     '''returns tables free at the time + date entered'''
     def post(self, request):
         data = request.data
-        tf = FreeTablesFinder(data['date'], data['time'], data['guests'])
+        dt_formatter = DatetimeFormatter(data['date'], data['time'])
+
+        tf = FreeTablesFinder(dt_formatter, data['guests'])
+
         free_tables = tf.get_serialized_tables()
         booking_frame = tf.get_booking_frame()
     
@@ -45,16 +56,16 @@ class BookingRequestViewSet(viewsets.ModelViewSet):
     def create(self, request):
         '''creates a booking'''
         data = request.data['bookingRequestData']
-        # #check if table is busy
-        # if not checkForTableBusiness(table,ft.get_busy_tables()):
-        #     raise TableIsAlreadyBusy
+        
 
         table = Table.objects.get(pk=data['table'])
         table_tags = table.tags.all()
 
+
         if not checkForTableBusiness(data,table):
-             raise TableIsAlreadyBusy
+            raise TableIsAlreadyBusy
         
+
         booking_request = BookingRequest.objects.create(guests=data['guests'], booking_start=data['bookingStart'], 
                                                         booking_end=data['bookingEnd'], client_name=data['clientName'], 
                                                         client_number=data['clientTel'], client_email=data['clientEmail']
@@ -76,7 +87,7 @@ class BookingRequestViewSet(viewsets.ModelViewSet):
         '''returns booking request by id'''
         #must return 1 booking by id 
         booking = self.get_object()
-        #print(booking)
+        
         serialized_booking = BookingRequestSerializer(booking).data
 
         if not checkForBookingCreator(booking, request.query_params):
@@ -97,28 +108,3 @@ class BookingRequestViewSet(viewsets.ModelViewSet):
         booking.delete()
         return Response({'message': "successfully deleted your booking request"})
     
-
-
-def checkForTableBusiness(table, busy_tables):
-    return not (table in busy_tables)
-
-
-def checkForTableBusiness(data, table):
-    bk_datetime = data['bookingStart']
-
-    bk_guests = data['guests']
-
-    ft = FreeTablesFinder(bk_datetime,bk_datetime,bk_guests)
-    
-    return not (table in ft.get_busy_tables())
-
-def checkForBookingCreator(booking: BookingRequest, data):
-    userData = data
-    return (booking.client_email == userData['email'] and booking.client_number == userData['phoneNumber'])
-     
-
-class BookingCreatedByAnotherUser(Exception):
-    pass
-
-class TableIsAlreadyBusy(Exception):
-    pass

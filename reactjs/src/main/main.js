@@ -15,7 +15,7 @@ const HeaderNavbar = (props) => {
     const [showBtn, changeShowBtn] = useState('dont-show');
 
     const navbarBackGroundHandler = () => {
-        if (window.scrollY == 0)
+        if (window.scrollY == 0 && document.body.style.overflow != 'hidden')
             navbarRef.current.style.backgroundColor = 'transparent';
         else
             navbarRef.current.style.backgroundColor = '#1C1C1C';
@@ -26,8 +26,8 @@ const HeaderNavbar = (props) => {
     if (localStorage.getItem('isBookingCreated')){
         changeShowBtn('show');
     }
-    console.log(isOverflown(document.body))
-    if (document.body.style.overflow != 'hidden' && document.body.style.overflow != '')
+    console.log(document.body.style.overflow)
+    if (document.body.style.overflow != 'hidden')
         navbarRef.current.style.backgroundColor = 'transparent';
     
     window.addEventListener('scroll', navbarBackGroundHandler);
