@@ -31,5 +31,5 @@ class BookingRequest(models.Model):
     tables = models.ManyToManyField(Table)
 
     def __str__(self):
-        return f'Request:{self.pk},Name:{self.client_name}, Email + Number:{self.client_email} + 
-        {self.client_number},Tables:{[x.pk for x in self.tables.all()]}'
+        return f'''Request:{self.pk},Name:{self.client_name}, Email + Number:{self.client_email}
+                + {self.client_number},Tables:{[x.pk for x in self.tables.all()]}'''
