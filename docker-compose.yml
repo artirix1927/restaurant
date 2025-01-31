@@ -1,0 +1,24 @@
+services:
+  app:
+    container_name: app
+    build:
+      context: ./drf/restaurantDrf  # Ensure this path is correct
+    command: >
+       bash -c "cd /drf/restaurantDrf && python manage.py makemigrations && python manage.py migrate && python -u manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./drf:/drf  # Bind-mount the code for live reload
+    environment:
+      - DEBUG=1
+      - PYTHONUNBUFFERED=1
+
+  frontend:
+    build:
+      context: ./reactjs  # Ensure this path is correct
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./reactjs:/reactjs
+    depends_on:
+      - app
