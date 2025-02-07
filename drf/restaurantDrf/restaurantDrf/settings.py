@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'booking.apps.BookingConfig',
     'menu.apps.MenuConfig',
-    
+
 ]
 
 MIDDLEWARE = [
@@ -60,7 +60,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-
 
 
 CORS_ALLOWED_ORIGINS = [
@@ -145,8 +144,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-REST_FRAMEWORK = { 
-                'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
-                'EXCEPTION_HANDLER': 'my_project.my_app.utils.custom_exception_handler'
-                }
-
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'EXCEPTION_HANDLER': 'retsaurantDrf.restaurantDrf.exception_handler.custom_exception_handler'
+}
