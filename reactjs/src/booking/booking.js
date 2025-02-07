@@ -3,7 +3,7 @@ import sArrows from '../css/arrows_style.module.css'
 
 import { handleArrowClick } from './arrowsHanlders';
 
-import { useRef, useContext, forwardRef} from 'react';
+import { useRef, useContext} from 'react';
 
 import { ChooseTableModal, TableElement} from './chooseTable';
 
@@ -104,7 +104,7 @@ const FormFields = (props) => {
         onClick={(e) => {handleArrowClick(e ,fpDate, fpTime)}}><i class="bi bi-caret-left-fill"></i></button>
 
 
-        <span><Flatpickr className={`${s['form-control']} ${s.input} form-control date-input`} id="booking-date-field"
+        <span><Flatpickr className={`${s['form-control']} form-control date-input`} id="booking-date-field"
                         placeholder="Mon, 1, Jan" options={{
                             altInput: true,
                             altFormat: "D,d M",
@@ -125,7 +125,7 @@ const FormFields = (props) => {
             <button type="button" className={`${sArrows.arrowbtn} ${sArrows.arrowbtnleft} guests`} 
             onClick={(e) => {handleArrowClick(e ,fpDate, fpTime)}}><i class="bi bi-caret-left-fill"></i></button>
             
-            <span><input className={`${s['form-control']} ${s.input} form-control guests-input`} type="number" placeholder="1" id="booking-guests-field" 
+            <span><input className={`${s['form-control']} form-control guests-input`} type="number" placeholder="1" id="booking-guests-field" 
             ref={guestsField}/></span>
 
             <button type="button" className={`${sArrows.arrowbtn} ${sArrows.arrowbtnright}  guests`} onClick={(e) => {handleArrowClick(e ,fpDate, fpTime)}}><i class="bi bi-caret-right-fill"></i></button>
@@ -140,7 +140,7 @@ const FormFields = (props) => {
         <button type="button" className={`${sArrows.arrowbtn} ${sArrows.arrowbtnleft}  time`} 
         onClick={(e) => {handleArrowClick(e ,fpDate, fpTime)}}><i class="bi bi-caret-left-fill"></i></button>
 
-        <span><Flatpickr className={`${s['form-control']} ${s.input} form-control time-input`} id="booking-time-field" placeholder='00:00' options={{
+        <span><Flatpickr className={`${s['form-control']} form-control time-input`} id="booking-time-field" placeholder='00:00' options={{
             enableTime:true,
             noCalendar:true,
             altInput: true,
