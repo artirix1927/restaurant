@@ -5,7 +5,7 @@ top:0;
 }
 
 .header-content{
-margin: 10px 30px;
+margin: 10px 4%;
 height: 42px;
 z-index:999;
 }
@@ -13,11 +13,13 @@ z-index:999;
 .navbar{
 position: fixed;
 background-color: #1C1C1C;
-width:100vw;
+width: 100%;
 height: 58px;
 -webkit-transition: background-color 600ms linear;
 -ms-transition: background-color 600ms linear;
 transition: background-color 600ms linear;
+top: 0;
+left: 0;
 }
 
 
@@ -60,13 +62,13 @@ background-repeat:no-repeat;
 }
 
 .sectioncontent{
-padding: 10% 35%;
+padding: 12% 30%;
 text-align:center;
 color:white;
 }
 
 .sectioncontent h3{
-font-size: 32px;
+font-size: 30px;
 }
 
 
@@ -83,6 +85,7 @@ margin-right: 10px;
 background: linear-gradient(to left, transparent 50%, #6c757d 50%) right;
 background-size: 200%;
 transition: .4s ease-out;
+margin-block: 4px;
 }
 
 .sectionbtn:hover{
@@ -135,5 +138,45 @@ padding-bottom: 15px;
 .link{
 text-decoration: none;
 color:white;
+
+}
+
+
+
+@media screen and (max-width: 768px) {
+    .book-a-table-navbar{
+        color:white;
+        border-radius:2px;
+        float:right;
+    }
+
+
+    .book-a-table-navbar{
+        display: none;
+        color:white;
+        border-radius:2px;
+        float:right;
+        }
+        
+        
+    .seeourmenu{
+        text-decoration: none;
+        color:white;
+    
+    }
+
+    .logoimglink{
+        width:36px;
+    }
+
+
+    .opening-hours{
+        width:90%;
+    }
+
+    .reserve-by-phone-div{
+        width: 60%;
+    }
+
 
 }
