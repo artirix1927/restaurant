@@ -56,7 +56,7 @@ export const Menu = () => {
     const [modalInfo, setModalInfo] = useState({})
     const [isModalOpened, setIsModalOpened] = useState(false);
 
-    return <div>
+    return <div className='container'>
         <div>
             <MenuItemModal setModalState={setIsModalOpened} data={modalInfo} ref={modalRef}/>
         </div>
@@ -73,11 +73,11 @@ export const Menu = () => {
             </div>
 
 
-            <div className={`${s['menu-item-list']}`}>    
+            <div className={`${s['menu-item-list']} mb-4`}>    
                             {getRows(menu).map((row)=>(
-                                    <div className='row'>
+                                    <div className='row row-cols-lg-2 row-cols-md-2 row-cols-sm-1 row-cols-xs-1'>
                                         {row.map(col=> (
-                                            <div className='col-lg-6 gy-4'>
+                                            <div className='col-lg-6 gy-4 d-flex justify-content-center' >
                                                 <MenuItem data={col} 
                                                     modalState={isModalOpened} 
                                                     setModalState={setIsModalOpened} 
