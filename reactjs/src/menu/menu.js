@@ -136,10 +136,6 @@ export const MenuItem = (props) => {
         if (!props.modalState){
             props.modalRef.current.style.display = 'block';
             props.setModalInfo(props.data)
-            //overflow blocking
-            document.body.style.overflow = 'hidden';
-            //add padding to compensate overflow hidden
-            document.body.style.paddingRight = "15px";
             props.setModalState(true);
         }
     }
@@ -164,13 +160,37 @@ export const MenuItem = (props) => {
 
 export const MenuItemModal = forwardRef((props, ref) => {
     const closeModalOnClick = () => {
-            ref.current.style.display = 'none';
-
-            document.body.style.overflow ='visible';
-            document.body.style.paddingRight = "0px";
-
-            props.setModalState(false);
+        ref.current.style.display = 'none'
+        props.setModalState(false);
     }
+
+
+
+
+    useEffect(()=>{
+    
+    }, [props.data])
+
+
+
+    useEffect(() => {
+        // When modal opens, prevent body scroll
+        if (props.modalState) {
+            document.body.style.overflow = 'hidden';
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            document.body.style.paddingRight = `${scrollbarWidth}px`; // Add padding to prevent layout shift
+        } else {
+            // When modal closes, reset body styles
+            document.body.style.overflow = 'visible';
+            document.body.style.paddingRight = "0px";
+        }
+
+        return () => {
+            // Clean up when component unmounts or modal closes
+            document.body.style.overflow = 'visible';
+            document.body.style.paddingRight = "0px";
+        };
+    }, [props.modalState]);  // Run effect only when modalState changes
 
     return <div className={s['modal']} ref={ref}>
         <i onClick={closeModalOnClick} className={`${s['modal-close-icon']} bi bi-x-lg`} 
