@@ -22,6 +22,7 @@ import { CreatedBookingDetail } from './booking/bookingDetail';
 import { Menu, MenuImageSectionContent } from './menu/menu';
 import { ScrollRestoration } from "react-router-dom";
 import { useEffect } from 'react';
+import { TableProvider } from './tableContext';
 
 
 
@@ -29,22 +30,26 @@ function App() {
   const MainPage = () => {
     document.body.style.overflow = 'visible';
     return <ContextWrapper>
-      <div id='main-page-wrapper'>
-        <HeaderNavbar/>
-        <ImageSection><ImageSectionContent/></ImageSection>
-        <BookingModal/>
-        <ReserveByPhone/>
-        <OpeningHours/>
-      </div>
+        <TableProvider>
+        <div id='main-page-wrapper'>
+          <HeaderNavbar/>
+          <ImageSection><ImageSectionContent/></ImageSection>
+          <BookingModal/>
+          <ReserveByPhone/>
+          <OpeningHours/>
+        </div>
+        </TableProvider>
     </ContextWrapper>}
 
   const CreateBookingRequest = () => {
     document.body.style.overflow = 'hidden';
     return <ContextWrapper>
+      <TableProvider>
       <div id='create-booking-request-wrapper'>
         <HeaderNavbar/>
         <CreateBookingRequestContent/>
       </div>
+      </TableProvider>
     </ContextWrapper>
   } 
   

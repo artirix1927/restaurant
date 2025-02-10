@@ -9,9 +9,12 @@ import { closeTableChoosingWindow } from './booking'
 
 import { MainPageContext } from './context'
 
+import { useTableContext } from '../tableContext'
+
+
 export const ChooseTableModal = (props) => { 
     return <div id="choose-table-modal" className={props.className ? props.className : s['choose-table-modal']}>
-        <CloseArrow/>
+        <CloseArrow setIsModalOpen={props.setIsModalOpen}/>
 
         <TableShortInfo />
 
@@ -20,8 +23,15 @@ export const ChooseTableModal = (props) => {
 }
 
 
-export const CloseArrow = () => {return <button id="close_arrow" className={`${s['close_arrow']} ${sArrows.arrowbtn} ${sArrows.arrowbtnleft} ${sArrows['arr-no-hover']} ${sArrows['arr-no-focus']}`} type="button"
-onClick={closeTableChoosingWindow}><i className={`${sArrows.arrow} ${sArrows.left} ${sArrows['arr-w']}`}></i></button>}
+export const CloseArrow = (props) => {
+    return <button id="close_arrow" 
+                    className={`${s['close_arrow']} ${sArrows.arrowbtn} 
+                            ${sArrows.arrowbtnleft} ${sArrows['arr-no-hover']} ${sArrows['arr-no-focus']}`} 
+                    type="button"
+                    onClick={()=>{props.setIsModalOpen(false); closeTableChoosingWindow() }}>
+                        
+                <i className={`${sArrows.arrow} ${sArrows.left} ${sArrows['arr-w']}`}></i>
+            </button>}
 
 
 export const TableShortInfo = (props) => {
@@ -36,13 +46,16 @@ export const TableShortInfo = (props) => {
     </div>}
 
 export const ChooseTableContent = () => {
-    return <div id="main-content" className={s['main-content']}>
-        <div id="list-of-tables" className={s['list-of-tables']}>
+    const { tables } = useTableContext();
 
+    return (
+        <div id="main-content" className={s['main-content']}>
+            <div id="list-of-tables" className={s['list-of-tables']}>
+                {tables.length > 0 ? tables : <p>No tables available</p>}
+            </div>
         </div>
-
-    </div>
-}
+    );
+};
 
 
 export const TableElement = (props) => {

@@ -16,9 +16,9 @@ import axios from 'axios';
 import { format, formatISO} from 'date-fns';
 
 import { useNavigate } from 'react-router-dom';
-import { createRoot } from 'react-dom/client';
 
 import { apiRoute } from '../constants';
+import { useTableContext } from '../tableContext';
 
 export const BookingModal = () => {
     return <div id="booking" className={s.booking}>
@@ -48,52 +48,54 @@ const FormFields = (props) => {
 
     const navigate = useNavigate();
 
-    function handleFindBtnClick(){
+    const { setTables, setBookingFrame } = useTableContext();
+
+    function handleFindBtnClick() {
         
+    
         openTableChoosingWindow();
-        let timeFieldValue = fpTime.current.flatpickr.input.value; //like 12:00
+        let timeFieldValue = fpTime.current.flatpickr.input.value; // like 12:00
         let guestsFieldValue = guestsField.current.value;
-
-        setDataForShortInfo(format(fpDate.current.flatpickr.latestSelectedDateObj, dateFormat),timeFieldValue,guestsFieldValue)
-
-        axios.post(`${apiRoute}/get-tables`, 
-                {
+    
+        setDataForShortInfo(
+            format(fpDate.current.flatpickr.latestSelectedDateObj, dateFormat),
+            timeFieldValue,
+            guestsFieldValue
+        );
+    
+        axios
+            .post(`${apiRoute}/get-tables`, {
                 time: formatISO(fpTime.current.flatpickr.latestSelectedDateObj),
                 date: formatISO(fpDate.current.flatpickr.latestSelectedDateObj),
                 guests: guestsFieldValue,
-                }
-
-        ).then((res) => {
-            let free_tables = res.data.free_tables;
-            let booking_frame = res.data.booking_frame;
-            console.log(booking_frame)
-            const listOfTables = document.getElementById('list-of-tables')
-            let root = createRoot(listOfTables)
-
-
-            //clearing from previous
-            root.unmount();
-            root = createRoot(listOfTables);
-
-            let tables = [];
-
-            free_tables.forEach((table) => {
-                let dataForHandleBtn = {table:table,bookingStart: booking_frame[0],
-                    bookingEnd: booking_frame[1], guests: guestsFieldValue,nav: navigate}
-    
-                let dataForTableElement ={time:timeFieldValue, table: table}
-                const tableElement = <TableElement data={dataForTableElement} 
-                                                   tableElementHandler = {handleTableElementClick}
-                                                   dataForTableElementHandler={dataForHandleBtn}
-                                                   key={table.id}
-                                                   />;
-                tables.push(tableElement)
             })
-            root.render(tables)
-           
-        
-        });
+            .then((res) => {
+                let freeTables = res.data.free_tables;
+                let bookingFrame = res.data.booking_frame;
+                setBookingFrame(bookingFrame);
     
+                let tableElements = freeTables.map((table) => {
+                    let dataForHandleBtn = {
+                        table: table,
+                        bookingStart: bookingFrame[0],
+                        bookingEnd: bookingFrame[1],
+                        guests: guestsFieldValue,
+                        nav: navigate,
+                    };
+    
+                    let dataForTableElement = { time: timeFieldValue, table: table };
+                    return (
+                        <TableElement
+                            data={dataForTableElement}
+                            tableElementHandler={handleTableElementClick}
+                            dataForTableElementHandler={dataForHandleBtn}
+                            key={table.id}
+                        />
+                    );
+                });
+    
+                setTables(tableElements); // ✅ Update context instead of manually mounting
+            });
     }
     
     
@@ -180,12 +182,12 @@ const handleTableElementClick = (e, data, nav) => {
 
 
 
-function openTableChoosingWindow(){
+export function openTableChoosingWindow(){
     document.getElementById('choose-table-modal').style.display = 'block';
 }
 
 export function closeTableChoosingWindow(){
-document.getElementById('choose-table-modal').style.display = 'none';
+    document.getElementById('choose-table-modal').style.display = 'none';
 }
 
 

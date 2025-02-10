@@ -6,7 +6,7 @@ import { Formik, Form, FastField } from "formik";
 
 import * as Yup from 'yup';
 
-import { forwardRef, useContext, useEffect, useRef } from "react";
+import { forwardRef, useContext, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 
 import { MainPageContext } from "./context";
@@ -18,105 +18,91 @@ import { apiRoute } from '../constants';
 import axios from "axios";
 
 import {useNavigate} from "react-router-dom";
+import { openTableChoosingWindow } from './booking';
+import { useTableContext } from '../tableContext';
+import { useScreenSize } from '../hooks';
 
 
 export const CreateBookingRequestContent = () => {
-    // all data for booking from main page form  
-    const userRequirementsData = JSON.parse(localStorage.getItem('userBookingRequirementsData')); 
+    // All data for booking from main page form  
+    const userRequirementsData = JSON.parse(localStorage.getItem("userBookingRequirementsData")); 
+    const parsedBookingStartDateTime = parseJSON(userRequirementsData.bookingStart);
 
-    const parsedBookingStartDateTime = parseJSON(userRequirementsData.bookingStart)//parse json is date-fns function
-
-    //refs
+    // Refs
     const tableChosen = useRef(userRequirementsData.tableChosen);
-
     const formikRef = useRef();
 
+    const { setDataForShortInfo } = useContext(MainPageContext);
+    const isSmallScreen = useScreenSize();
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // context func to set short info in choose table window at the top
-    const {setDataForShortInfo} = useContext(MainPageContext)
 
-    useEffect(()=>{  
+    const { setTables } = useTableContext();
+    
 
+    useEffect(() => {  
         const date = format(parsedBookingStartDateTime, "E, d LLL");
         const time = format(parsedBookingStartDateTime, "H:mm");
-
-        setDataForShortInfo(date, time, userRequirementsData.guests)
-    }, [])
+        setDataForShortInfo(date, time, userRequirementsData.guests);
+    }, []);
 
 
     useEffect(() => {
-        const listOfTables = document.getElementById('list-of-tables')
-
-        let root = createRoot(listOfTables)
-
-        const time = format(parsedBookingStartDateTime, "H:mm");
-
         axios.post(`${apiRoute}/get-tables`, {
-        
             time: userRequirementsData.bookingStart,
             date: userRequirementsData.bookingStart,
             guests: userRequirementsData.guests,
-
-
         }).then((res) => {
-            let free_tables = res.data.free_tables;
-            
-            root.unmount()
-            
-            root = createRoot(listOfTables)
-
+            let freeTables = res.data.free_tables;
             let tables = [];
 
             let isTablePresent = false;
-            free_tables.forEach((table) => {
-                //checking if there is chosenTable in free tables 
-                //(when user books a table and returns to the form)
-                if (table.id === tableChosen.current)
-                    isTablePresent = true;
+            freeTables.forEach((table) => {
+                if (table.id === tableChosen.current) isTablePresent = true;
 
-                let dataForTableElement ={ time:time, table: table}
-                let dataForHandleBtn = {tableChosen:tableChosen, formikRef:formikRef, nav:null}
-                
-                const tableElement = <TableElement data={dataForTableElement} 
-                                                   tableElementHandler = {handleTableElementClick}
-                                                   dataForTableElementHandler={dataForHandleBtn} key={table.id} 
-                                                   active={(table.id === tableChosen.current)}/>;
-                tables.push(tableElement)
-            })
-            
-            root.render(tables);
+                let dataForTableElement = { time: format(parsedBookingStartDateTime, "H:mm"), table };
+                let dataForHandleBtn = { tableChosen, formikRef, nav: null };
 
-            if (!(isTablePresent)){
-                requestIdleCallback(()=>{
-                    const lastTableElem = listOfTables.lastChild
-                    setCurrentTableElementTo(lastTableElem, formikRef, tableChosen)
-                })
+                tables.push(
+                    <TableElement 
+                        data={dataForTableElement} 
+                        tableElementHandler={handleTableElementClick}
+                        dataForTableElementHandler={dataForHandleBtn} 
+                        key={table.id} 
+                        active={table.id === tableChosen.current}
+                    />
+                );
+            });
+
+            setTables(tables);
+
+            if (!isTablePresent) {
+                requestIdleCallback(() => {
+                    if (tables.length > 0) {
+                        setCurrentTableElementTo(tables[tables.length - 1], formikRef, tableChosen);
+                    }
+                });
             }
-            
-        })
-      },[]);  
-    
+        });
+    }, []);
 
-    return <div id="create-booking-content" className={s['create-booking-content']}>
-        <div id="form-wrapper" className={s['form-wrapper']}>
-            <FormikForm ref={{formik:formikRef, tableChosen: tableChosen}}
-             userRequirementsData={userRequirementsData}/>
-            
-            
+    return (
+        <div id="create-booking-content" className={s["create-booking-content"]}>
+            <div id="form-wrapper" className={s["form-wrapper"]}>
+                <FormikForm ref={{ formik: formikRef, tableChosen }} userRequirementsData={userRequirementsData} />
+            </div>
+
+            {isSmallScreen==true && <button className={s["open-modal-btn"]} onClick={() => {openTableChoosingWindow(); setIsModalOpen(true)}}>
+                Choose Table
+            </button>}
+
+            <ChooseTableModal setIsModalOpen={setIsModalOpen}
+                className={`${s["choose-table-modal"]} ${isSmallScreen ? s["hidden"] : ""} ${isModalOpen ? s["show-modal"] : ""}`} 
+            />
+
         </div>
-
-        <div>
-            <ChooseTableModal className={s['choose-table-modal']}/>
-
-        </div>
-
-
-
-    </div>
-}
-
-
-
+    );
+};
 
 
 const FormikForm = forwardRef((props, refs)=>{
@@ -174,10 +160,7 @@ const FormikForm = forwardRef((props, refs)=>{
         {({ errors, touched }) => (
             <Form>
                 <ClientPersonalInfoFields/>
-                {/* {errors.clientName && touched.clientName && <div>{errors.clientName}</div>}
-                {errors.clientEmail && touched.clientEmail && <div>{errors.clientEmail}</div>}
-                {errors.clientTel && touched.clientTel&& <div>{errors.clientTel}</div>} */}
-
+                
                 <br/>
                 <TableInfoFields/>
 
@@ -197,7 +180,7 @@ const FormFieldWrapper = (props) => {return <div className={s['form-field-wrappe
 
 const TableInfoFields = () => {return <div>
     <FormFieldWrapper iconName='journal'>
-        <FastField type="text" className={`${s['form-control']} ${s['round-top']} form-control`} name="table" 
+        <FastField type="text" className={`${s['form-control']} form-control`} name="table" 
         disabled={true}/>
     </FormFieldWrapper>
 
@@ -219,7 +202,7 @@ const TableInfoFields = () => {return <div>
 
 
 const ClientPersonalInfoFields = () =>{return <div>
-    <FastField type="text" className={`${s['form-control']} ${s['round-top']} form-control`} 
+    <FastField type="text" className={`${s['form-control']} form-control`} 
     name="clientName" placeholder="Name"
     />
 
