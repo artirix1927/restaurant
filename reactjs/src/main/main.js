@@ -21,22 +21,21 @@ const HeaderNavbar = (props) => {
             navbarRef.current.style.backgroundColor = '#1C1C1C';
     }
 
-    useEffect(() => {
+    useEffect(() => {  
+        if (localStorage.getItem('isBookingCreated')){
+            changeShowBtn('show');
+        }
+        console.log(document.body.style.overflow)
+        if (document.body.style.overflow != 'hidden')
+            navbarRef.current.style.backgroundColor = 'transparent';
         
-    if (localStorage.getItem('isBookingCreated')){
-        changeShowBtn('show');
-    }
-    console.log(document.body.style.overflow)
-    if (document.body.style.overflow != 'hidden')
-        navbarRef.current.style.backgroundColor = 'transparent';
-    
-    window.addEventListener('scroll', navbarBackGroundHandler);
-    
-    return () => {
-        window.removeEventListener('scroll', navbarBackGroundHandler);
-    };
+        window.addEventListener('scroll', navbarBackGroundHandler);
+        
+        return () => {
+            window.removeEventListener('scroll', navbarBackGroundHandler);
+        };
        
-    }, []);
+    });
 
     return <header id="navbar" className={s.navbar} ref={navbarRef}>
 
