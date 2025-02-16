@@ -10,7 +10,7 @@ reactjs/node_modules/
 /coverage
 
 # production
-/build
+reactjs/build/
 
 # misc
 .DS_Store
