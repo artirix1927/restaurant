@@ -4,14 +4,14 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import 'flatpickr/dist/flatpickr.css'
 
 
-import { BookingModal } from "./booking/booking";
+import { BookingModal } from './booking/main/booking'; 
 import {HeaderNavbar, ImageSection, ReserveByPhone, OpeningHours, ImageSectionContent} from "./main/main";
 
-import { CreateBookingRequestContent } from './booking/createBookingRequest';
+import { CreateBookingRequestContent } from './booking/final/createBookingRequest';
 
 import {CreatedBookingList} from './booking/bookingList'
 
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -20,7 +20,6 @@ import { ContextWrapper } from './booking/context';
 import { CreatedBookingDetail } from './booking/bookingDetail'; 
 
 import { Menu, MenuImageSectionContent } from './menu/menu';
-import { ScrollRestoration } from "react-router-dom";
 import { useEffect } from 'react';
 import { TableProvider } from './tableContext';
 

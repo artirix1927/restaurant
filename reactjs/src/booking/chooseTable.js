@@ -5,7 +5,7 @@ import sArrows from '../css/arrows_style.module.css'
 
 import { useContext} from 'react'
 
-import { closeTableChoosingWindow } from './booking'
+import { closeTableChoosingWindow } from './main/booking'
 
 import { MainPageContext } from './context'
 
