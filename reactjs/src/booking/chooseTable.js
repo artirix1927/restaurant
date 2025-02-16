@@ -28,7 +28,12 @@ export const CloseArrow = (props) => {
                     className={`${s['close_arrow']} ${sArrows.arrowbtn} 
                             ${sArrows.arrowbtnleft} ${sArrows['arr-no-hover']} ${sArrows['arr-no-focus']}`} 
                     type="button"
-                    onClick={()=>{props.setIsModalOpen(false); closeTableChoosingWindow() }}>
+                    onClick={() => {
+                        if (props.setIsModalOpen) {
+                            props.setIsModalOpen(false);
+                        }
+                        closeTableChoosingWindow();
+                    }} >
                         
                 <i className={`${sArrows.arrow} ${sArrows.left} ${sArrows['arr-w']}`}></i>
             </button>}
